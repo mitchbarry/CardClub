@@ -1,0 +1,7 @@
+.sidebar {
+    background-color: rgba(19, 19, 19, 0.25);
+    border: 3px solid rgb(19, 19, 19);
+    height: 900px;
+    min-width: 150px;
+    margin: 0px 15px;
+}
