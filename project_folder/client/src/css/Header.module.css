@@ -1,0 +1,67 @@
+/* ------------------------------------------------------------------------------------ div items > */
+.flexBox {
+    display: flex;
+}
+.flexBoxSpaceBetween {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.header {
+    background-color: rgba(19, 19, 19, 0.25);
+    border-bottom: 3px solid rgb(19, 19, 19);
+    height: 100px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+.headerMain {
+    height: 100%;
+    width: 1250px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+/* ------------------------------------------------------------------------------------ button items > */
+.redButtonMarginLeft, .yellowButton {
+    color: #F5EEE3;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    cursor: pointer;
+    text-decoration: none;
+    border: 2px solid rgb(19, 19, 19);
+}
+.redButtonMarginLeft, .yellowButton {
+    font-weight: bold;
+    font-size: 130%;
+    height: 40px;
+    padding: 10px 20px;
+}
+.redButtonMarginLeft {
+    background-image: radial-gradient(circle, #BA2B2D, #972426);
+}
+.yellowButton {
+    background-image: radial-gradient(circle, #ebc642, #caab38);
+}
+.redButtonMarginLeft {
+    margin-left: 20px;
+}
+/* ------------------------------------------------------------------------------------ simple styling items > */
+.heading1 {
+    font-size: 300%;
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
+}
+.logo {
+    width: 75px;
+    height: 75px;
+    margin: 5px 0px;
+}
+.whiteText {
+    color: #F5EEE3;
+}
