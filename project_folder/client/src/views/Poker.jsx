@@ -9,7 +9,6 @@ const Poker = () => {
     const canvasRef = useRef(null);
 
     const [ctx, setCtx] = useState(null);
-    const [mousePos, setMousePos] = useState({ x: null, y: null });
     const [gameState, setGameState] = useState({
         state: 0,
         playerCount: 5,
@@ -22,17 +21,6 @@ const Poker = () => {
         playersFolded: 0,
         winners: []
         });
-
-    const interactables = {
-        foldButton: {
-            buttonX: 550, buttonY: 938, buttonWidth: 150, buttonHeight: 50
-        },
-        checkButton: {
-            buttonX: 775, buttonY: 938, buttonWidth: 150, buttonHeight: 50
-        },
-        raiseButton: {
-            buttonX: 1000, buttonY: 938, buttonWidth: 150, buttonHeight: 50
-        }};
 
     const unabbreviate = (abbreviatedWord) => {
         switch(abbreviatedWord) {
@@ -62,81 +50,129 @@ const Poker = () => {
         const context = canvas.getContext('2d');
         setCtx(context);
         // Add event listeners for mouse movement and clicks
-        canvas.addEventListener('mousemove', handleMouseMove);
         canvas.addEventListener('click', handleCanvasClick);
         return () => {
             // Cleanup: remove event listeners when the component unmounts
-            canvas.removeEventListener('mousemove', handleMouseMove);
             canvas.removeEventListener('click', handleCanvasClick);
         };
     }, [gameState.state]);
 
-    const handleMouseMove = (event) => {
-        const rect = canvasRef.current.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        setMousePos({ x, y });
+    const interactables = {
+        playButton: {
+            buttonX: 550, buttonY: 500, buttonWidth: 150, buttonHeight: 50
+        },
+        homeButton: {
+            buttonX: 300, buttonY: 50, buttonWidth: 60, buttonHeight: 60
+        },
+        easyButton: {
+            buttonX: 550, buttonY: 500, buttonWidth: 150, buttonHeight: 50
+        },
+        mediumButton: {
+            buttonX: 775, buttonY: 500, buttonWidth: 150, buttonHeight: 50
+        },
+        hardButton: {
+            buttonX: 1000, buttonY: 500, buttonWidth: 150, buttonHeight: 50
+        },
+        foldButton: {
+            buttonX: 550, buttonY: 938, buttonWidth: 150, buttonHeight: 50
+        },
+        checkButton: {
+            buttonX: 775, buttonY: 938, buttonWidth: 150, buttonHeight: 50
+        },
+        raiseButton: {
+            buttonX: 1000, buttonY: 938, buttonWidth: 150, buttonHeight: 50
+        }
     };
 
     const handleCanvasClick = (event) => {
         const rect = canvasRef.current.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-        if (gameState.state === 7) {
-            // Iterate over each interactable element
-            Object.keys(interactables).forEach((key) => {
-                const { buttonX, buttonY, buttonWidth, buttonHeight } = interactables[key];
-                // Check if the click occurred within the boundaries of the current element
-                if (x >= buttonX && x <= buttonX + buttonWidth && y >= buttonY && y <= buttonY + buttonHeight) {
-                    // Perform actions based on the clicked element
-                    switch (key) {
-                        case 'foldButton':
-                            playerFold();
-                            break;
-                        case 'checkButton':
-                            playerCheck();
-                            break;
-                        case 'raiseButton':
-                            playerRaise();
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            })
+        if (gameState.state === 3) {
+            setGameState(prevState => ({ ...prevState, state: 4}));
         }
+        Object.keys(interactables).forEach((key) => {
+            const { buttonX, buttonY, buttonWidth, buttonHeight } = interactables[key];
+            if (x >= buttonX && x <= buttonX + buttonWidth && y >= buttonY && y <= buttonY + buttonHeight) {
+                switch (key) { // Perform actions based on the clicked element
+                    case 'playButton':
+                        if (gameState.state === 0) {
+                            setGameState(prevState => ({ ...prevState, state: 1 }));
+                        }
+                        break;
+                    case 'homeButton':
+                        if (gameState.state >= 1) {
+                            setGameState(prevState => ({ ...prevState, state: 0}));
+                        }
+                    case 'foldButton':
+                        if (gameState.state === 7) {
+                            playerFold();
+                        }
+                        break;
+                    case 'checkButton':
+                        if (gameState.state === 7) {
+                            playerCheck();
+                        }
+                        break;
+                    case 'raiseButton':
+                        if (gameState.state === 7) {
+                            playerRaise();
+                        }
+                        break;
+                    case 'easyButton':
+                        if (gameState.state === 1) {
+                            setGameState(prevState => ({ ...prevState, difficulty: 0, state: 2 }));
+                        }
+                        break;
+                    case 'mediumButton':
+                        if (gameState.state === 1) {
+                            setGameState(prevState => ({ ...prevState, difficulty: 1, state: 2 }));
+                        }
+                        break;
+                    case 'hardButton':
+                        if (gameState.state === 1) {
+                            setGameState(prevState => ({ ...prevState, difficulty: 2, state: 2 }));
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        })
     };
 
     const drawElements = () => {
         if (ctx) {
-            // Clear canvas
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            // Set Base Settings
-            ctx.textAlign = 'center';
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clear canvas
+            ctx.textAlign = 'center'; // Set Base Settings
             ctx.textBaseline = 'middle';
-            // Conditionally Draw Elements
-            if (gameState.state >= 2) {
+            if (gameState.state === 0) {
+                drawPlayButton();
+                return;
+            }
+            if (gameState.state >= 1) {
+                drawHomeButton();
+            }
+            if (gameState.state === 1) {
+                drawDifficultyButtons();
+                return;
+            }
+            if (gameState.state >= 2) { // Conditionally Draw Elements
                 drawPlayers();
                 drawPot();
                 drawDeck();
             }
-            if (gameState.state === 7) {
-                drawPlayerButtons();
-            }
             if (gameState.river.length !== 0) {
                 drawRiver();
             }
-            drawMouseIndicator();
-        }
-    };
-
-    const drawMouseIndicator = () => {
-        // Draw mouse position indicator
-        if (mousePos.x !== null && mousePos.y !== null) {
-            ctx.fillStyle = 'yellow';
-            ctx.beginPath();
-            ctx.arc(mousePos.x, mousePos.y, 5, 0, 2 * Math.PI);
-            ctx.fill();
+            if (gameState.state === 3) {
+                drawContinue();
+                return;
+            }
+            if (gameState.state === 7) {
+                drawPlayerButtons();
+                return;
+            }
         }
     };
 
@@ -222,6 +258,29 @@ const Poker = () => {
         ctx.fillText('Deck: ' + gameState.deck.length + " cards", centerX, 230);
     }
 
+    const drawDifficultyButtons = () => {
+        const centerX = ctx.canvas.width / 2;
+        const centerY = ctx.canvas.height / 2;
+        ctx.globalAlpha = 0.5; // Set the transparency (alpha value)
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; // Set the fill style to a semi-transparent color
+        ctx.fillRect(centerX - centerX / 2, centerY - centerY / 2, centerX, centerY);
+        ctx.globalAlpha = 1.0; // Reset the transparency for subsequent drawings
+        ctx.font = '36px Arial';
+        ctx.fillStyle = 'whitesmoke';
+        ctx.fillStyle = 'gray'; // Easy Button
+        ctx.fillRect(interactables.easyButton.buttonX, interactables.easyButton.buttonY, interactables.easyButton.buttonWidth, interactables.easyButton.buttonHeight);
+        ctx.fillStyle = 'whitesmoke';
+        ctx.fillText("Easy", interactables.easyButton.buttonX + (interactables.easyButton.buttonWidth / 2), interactables.easyButton.buttonY + (interactables.easyButton.buttonHeight / 2));
+        ctx.fillStyle = 'gray'; // Medium Button
+        ctx.fillRect(interactables.mediumButton.buttonX, interactables.mediumButton.buttonY, interactables.mediumButton.buttonWidth, interactables.mediumButton.buttonHeight);
+        ctx.fillStyle = 'whitesmoke';
+        ctx.fillText("Medium", interactables.mediumButton.buttonX + (interactables.mediumButton.buttonWidth / 2), interactables.mediumButton.buttonY + (interactables.mediumButton.buttonHeight / 2));
+        ctx.fillStyle = 'gray'; // Hard Button
+        ctx.fillRect(interactables.hardButton.buttonX, interactables.hardButton.buttonY, interactables.hardButton.buttonWidth, interactables.hardButton.buttonHeight);
+        ctx.fillStyle = 'whitesmoke';
+        ctx.fillText("Hard", interactables.hardButton.buttonX + (interactables.hardButton.buttonWidth / 2), interactables.hardButton.buttonY + (interactables.hardButton.buttonHeight / 2));
+    }
+
     const drawPlayerButtons = () => {
         const userPlayerIndex = gameState.players.findIndex(player => player.name === "User Player");
         const player = gameState.players[userPlayerIndex]
@@ -253,16 +312,51 @@ const Poker = () => {
         }
     }
 
+    const drawContinue = () => {
+        const centerX = ctx.canvas.width / 2;
+        ctx.font = '36px Arial';
+        ctx.globalAlpha = 0.5; // Set the transparency (alpha value)
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'; // Set the fill style to a semi-transparent color
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Draw a rectangle covering the entire canvas
+        ctx.globalAlpha = 1.0; // Reset the transparency for subsequent drawings
+        ctx.fillStyle = 'whitesmoke';
+        ctx.fillText("Press anywhere to continue...", centerX, 500);
+    }
+
+    const drawPlayButton = () => {
+        const img = new Image();
+        img.src = pokerTime;
+        img.onload = function() {
+            ctx.drawImage(img, 500, 500, 250, 250);
+            ctx.font = '60px Arial';
+            ctx.fillStyle = 'whitesmoke';
+            ctx.fillText("Poker Project", 400, 600);
+            ctx.font = '36px Arial';
+            ctx.fillStyle = 'red'; // Play Button
+            ctx.fillRect(interactables.playButton.buttonX, interactables.playButton.buttonY, interactables.playButton.buttonWidth, interactables.playButton.buttonHeight);
+            ctx.fillStyle = 'whitesmoke';
+            ctx.fillText("Play", interactables.playButton.buttonX + (interactables.playButton.buttonWidth / 2), interactables.playButton.buttonY + (interactables.playButton.buttonHeight / 2));
+        };
+    };
+
+    const drawHomeButton = () => {
+        const img = new Image();
+        img.src = homeButton;
+        img.onload = function() {
+            ctx.drawImage(img, 300, 50, 60, 60);
+        };
+    }
+
     useEffect(() => {
         drawElements();
-    }, [ctx, mousePos, gameState.state]);
+    }, [ctx, gameState.state]);
 
     /* Track game states here
         0 - Menu
         1 - Choose Difficulty...
         2 - players get created
-        3 - deck gets shuffled
-        4 - click to begin game...
+        3 - click to begin game...
+        4 - deck gets shuffled
         5 - collect blinds
         6 - deal cards
         7 - user player choice -> pause player choice cycle
@@ -273,20 +367,12 @@ const Poker = () => {
         12 - turn comes out -> move to state 13 to reset round
         13 - round reset -> remaining player's lastActions are reset to "" -> move to state 7 to begin resolution of a round that isn't the first (starts left of the dealer)
         14 - determine winner -> river is out and last round is resolved -> a winner is decided by best hand (this will never activate in the case that someone wins by being the last remaining)
-        15 - resolving game -> pot is distributed back to the winner(s), player's hands are reset, river is reset, winning hand is highlighted in the display
-        16 - click to play again... -> move to state 3 to play again
+        15 - resolving game -> pot is distributed back to the winner(s), player's hands are reset, river is reset, winning hand is highlighted in the display -> state gets set back to 3
     */
 
     const buttonHandler = (e) => {
         switch(e.target.id) {
-            case "play":
-                console.log("<-- loading game...")
-                console.log("--> select difficulty...")
-                setGameState(prevState => ({ ...prevState, state: 1 }));
-                break;
             case "home":
-                console.log("<-- returning home...")
-                console.log("<-- resetting game...")
                 setGameState({ // This fully resets the game right now but eventually I'd like to not do this?
                     state: 0,
                     playerCount: 5,
@@ -300,26 +386,6 @@ const Poker = () => {
                     winners: []
                     });
                 break;
-            case "easy":
-                console.log("<-- easy difficulty selected...");
-                console.log("--> click anywhere to begin...");
-                setGameState(prevState => ({ ...prevState, difficulty: 0, state: 2 }));
-                break;
-            case "medium":
-                console.log("<-- medium difficulty selected...");
-                console.log("--> click anywhere to begin...");
-                setGameState(prevState => ({ ...prevState, difficulty: 1, state: 2 }));
-                break;
-            case "hard":
-                console.log("<-- hard difficulty selected...");
-                console.log("--> click anywhere to begin...");
-                setGameState(prevState => ({ ...prevState, difficulty: 2, state: 2 }));
-                break;
-            case "start":
-                console.log("<-- shuffling deck...");
-                console.log("<-- beginning player cycle...");
-                setGameState(prevState => ({ ...prevState, state: 5}));
-                break;
             default:
                 return;
         }
@@ -331,80 +397,65 @@ const Poker = () => {
                 setGameState(prevState => ({ ...prevState, difficulty: 0, deck: [], river: [], pot: 0, players: []}));
                 break;
             case 1:
-                console.log(`--> User Player is deciding...`);
+                console.log(`--- user is deciding... ---`);
                 break;
             case 2:
-                setGameState(prevState => ({ ...prevState, players: generatePlayers(), state: 3}));
+                console.log(`--> start phase: generate players`);
+                generatePlayers();
                 break;
             case 3:
-                setGameState(prevState => ({ ...prevState,  deck: shuffleDeck(), state: 4}));
+                console.log(`--- User is deciding... ---`);
                 break;
             case 4:
-                console.log(`--> User Player is deciding...`);
+                console.log(`--> start phase: shuffle deck`);
+                shuffleDeck()
                 break;
             case 5:
+                console.log(`--> start phase: collect blinds`);
                 collectBlinds();
                 break;
             case 6:
+                console.log(`--> start phase: deal`);
                 deal();
                 break;
             case 7:
-                console.log(`--> User Player is deciding...`);
+                console.log(`--- User is deciding... ---`);
                 break;
             case 8:
+                console.log(`--> start phase: preflop round`);
+                runGame();
+                break;
             case 9:
+                runGame();
+                break;
             case 10:
+                console.log(`--> start phase: turn round`);
                 runGame();
                 break;
             case 11:
+                console.log("--> start phase: initial flop");
                 initialFlop();
                 break;
             case 12:
+                console.log("--> start phase: turn");
                 turn();
                 break;
             case 13:
+                console.log("--> start phase: round cleanup");
                 roundReset();
                 break;
             case 14:
+                console.log("--> start phase: determine winner");
                 determineWinner();
                 break;
             case 15:
+                console.log("--> start phase: resolve game");
                 resolveGame();
-                break;
-            case 16:
-                console.log(`--> User Player is deciding...`);
                 break;
             default:
                 return;
         }
     }, [gameState.state]);
-
-    const shuffleDeck = () => {
-        const newDeck = [
-            { number: 2, suit: 'h' }, { number: 3, suit: 'h' }, { number: 4, suit: 'h' }, { number: 5, suit: 'h' },
-            { number: 6, suit: 'h' }, { number: 7, suit: 'h' }, { number: 8, suit: 'h' }, { number: 9, suit: 'h' },
-            { number: 10, suit: 'h' }, { number: 11, suit: 'h' }, { number: 12, suit: 'h' }, { number: 13, suit: 'h' },
-            { number: 14, suit: 'h' }, { number: 2, suit: 'd' }, { number: 3, suit: 'd' }, { number: 4, suit: 'd' },
-            { number: 5, suit: 'd' }, { number: 6, suit: 'd' }, { number: 7, suit: 'd' }, { number: 8, suit: 'd' },
-            { number: 9, suit: 'd' }, { number: 10, suit: 'd' }, { number: 11, suit: 'd' }, { number: 12, suit: 'd' },
-            { number: 13, suit: 'd' }, { number: 14, suit: 'd' }, { number: 2, suit: 'c' }, { number: 3, suit: 'c' },
-            { number: 4, suit: 'c' }, { number: 5, suit: 'c' }, { number: 6, suit: 'c' }, { number: 7, suit: 'c' },
-            { number: 8, suit: 'c' }, { number: 9, suit: 'c' }, { number: 10, suit: 'c' }, { number: 11, suit: 'c' },
-            { number: 12, suit: 'c' }, { number: 13, suit: 'c' }, { number: 14, suit: 'c' }, { number: 2, suit: 's' },
-            { number: 3, suit: 's' }, { number: 4, suit: 's' }, { number: 5, suit: 's' }, { number: 6, suit: 's' },
-            { number: 7, suit: 's' }, { number: 8, suit: 's' }, { number: 9, suit: 's' }, { number: 10, suit: 's' },
-            { number: 11, suit: 's' }, { number: 12, suit: 's' }, { number: 13, suit: 's' }, { number: 14, suit: 's' }];
-        return shuffle(newDeck);
-    };
-
-    const shuffle = (list) => {
-        const shuffledList = list;
-        for (let i = list.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [list[i], list[j]] = [list[j], list[i]];
-        }
-        return shuffledList;
-    }
 
     const generatePlayers = () => {
         const playerNames = [
@@ -427,7 +478,37 @@ const Poker = () => {
                 newPlayers.push({name: shuffledPlayerNames[i], chips: 1000, dealer: isDealer ? true : false, lastAction: "", hand: [], currentBet: 0})
             }
         }
-        return newPlayers;
+        setGameState(prevState => ({ ...prevState, players: newPlayers, state: 3}));
+        console.log(`<-- stop phase: generate players`);
+    }
+
+    const shuffleDeck = () => {
+        const newDeck = [
+            { number: 2, suit: 'h' }, { number: 3, suit: 'h' }, { number: 4, suit: 'h' }, { number: 5, suit: 'h' },
+            { number: 6, suit: 'h' }, { number: 7, suit: 'h' }, { number: 8, suit: 'h' }, { number: 9, suit: 'h' },
+            { number: 10, suit: 'h' }, { number: 11, suit: 'h' }, { number: 12, suit: 'h' }, { number: 13, suit: 'h' },
+            { number: 14, suit: 'h' }, { number: 2, suit: 'd' }, { number: 3, suit: 'd' }, { number: 4, suit: 'd' },
+            { number: 5, suit: 'd' }, { number: 6, suit: 'd' }, { number: 7, suit: 'd' }, { number: 8, suit: 'd' },
+            { number: 9, suit: 'd' }, { number: 10, suit: 'd' }, { number: 11, suit: 'd' }, { number: 12, suit: 'd' },
+            { number: 13, suit: 'd' }, { number: 14, suit: 'd' }, { number: 2, suit: 'c' }, { number: 3, suit: 'c' },
+            { number: 4, suit: 'c' }, { number: 5, suit: 'c' }, { number: 6, suit: 'c' }, { number: 7, suit: 'c' },
+            { number: 8, suit: 'c' }, { number: 9, suit: 'c' }, { number: 10, suit: 'c' }, { number: 11, suit: 'c' },
+            { number: 12, suit: 'c' }, { number: 13, suit: 'c' }, { number: 14, suit: 'c' }, { number: 2, suit: 's' },
+            { number: 3, suit: 's' }, { number: 4, suit: 's' }, { number: 5, suit: 's' }, { number: 6, suit: 's' },
+            { number: 7, suit: 's' }, { number: 8, suit: 's' }, { number: 9, suit: 's' }, { number: 10, suit: 's' },
+            { number: 11, suit: 's' }, { number: 12, suit: 's' }, { number: 13, suit: 's' }, { number: 14, suit: 's' }];
+        const shuffledDeck = shuffle(newDeck);
+        setGameState(prevState => ({ ...prevState,  deck: shuffledDeck, state: 5}));
+        console.log(`<-- stop phase: shuffle deck`);
+    };
+
+    const shuffle = (list) => {
+        const shuffledList = list;
+        for (let i = list.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [list[i], list[j]] = [list[j], list[i]];
+        }
+        return shuffledList;
     }
 
     const collectBlinds = () => {
@@ -436,11 +517,13 @@ const Poker = () => {
         const currentDealerIndex = newPlayers.findIndex(player => player.dealer);
         const smallBlindIndex = (currentDealerIndex + 1) % numPlayers;
         const bigBlindIndex = (currentDealerIndex + 2) % numPlayers;
+        const newPot = gameState.pot + 15
         newPlayers[smallBlindIndex].chips -= 5;
         newPlayers[smallBlindIndex].currentBet = 5;
         newPlayers[bigBlindIndex].chips -= 10;
         newPlayers[bigBlindIndex].currentBet = 10;
-        setGameState(prevState => ({ ...prevState, state: 6, players: newPlayers, pot: 15, highestBet: 10}));
+        setGameState(prevState => ({ ...prevState, state: 6, players: newPlayers, pot: newPot, highestBet: 10}));
+        console.log(`<-- stop phase: collect blinds`);
     }
 
     const deal = () => {
@@ -453,17 +536,16 @@ const Poker = () => {
             newPlayers[i % numPlayers].hand.push(newDeck.pop());
         }
         setGameState(prevState => ({ ...prevState, state: 8, players: newPlayers, deck: newDeck}));
+        console.log(`<-- stop phase: deal`);
     }
 
     const playerFold = () => {
-        console.log(`<-- User Player will fold...`);
         const newGameState = {...gameState};
         const userPlayerIndex = newGameState.players.findIndex(player => player.name === "User Player");
         newGameState.players[userPlayerIndex].lastAction = "Fold";
         newGameState.state = 9;
         newGameState.playersFolded += 1;
         setGameState(newGameState);
-        console.log("<-- setting state to 6")
     }
 
     const playerCheck = () => {
@@ -472,20 +554,17 @@ const Poker = () => {
         let player = newGameState.players[userPlayerIndex];
         if (player.currentBet !== newGameState.highestBet) {
             const callAmount = newGameState.highestBet - player.currentBet
-            console.log(`<-- User Player will call (${callAmount})...`);
             player.lastAction = `Call (${callAmount})`;
             player.currentBet = player.currentBet + callAmount
             player.chips = player.chips - (callAmount)
             newGameState.pot = newGameState.pot + callAmount;
         }
         else {
-            console.log(`<-- User Player will check...`);
             player.lastAction = "Check";
         }
         newGameState.players[userPlayerIndex] = player
         newGameState.state = 9
         setGameState(newGameState);
-        console.log("<-- setting state to 6")
     }
 
     const playerRaise = () => {
@@ -493,7 +572,6 @@ const Poker = () => {
         const userPlayerIndex = newGameState.players.findIndex(player => player.name === "User Player");
         let player = newGameState.players[userPlayerIndex];
         const raiseAmount = 10;
-        console.log(`<-- User Player will raise by ${raiseAmount}...`);
         player.lastAction = `Raise ${raiseAmount}`;
         if (player.currentBet !== newGameState.highestBet) {
             const callAmount = newGameState.highestBet - player.currentBet
@@ -511,7 +589,6 @@ const Poker = () => {
         newGameState.players[userPlayerIndex] = player
         newGameState.state = 9
         setGameState(newGameState);
-        console.log("<-- setting state to 6")
     }
 
     const runGame = () => {
@@ -535,33 +612,26 @@ const Poker = () => {
         while (newGameState.state === 8 || newGameState.state === 9 || newGameState.state === 10) {
             let roundResolved = true;
             for (let i = 0; i < numPlayers; i++) {
-                // Check if all other players have folded
-                if (newGameState.playersFolded === (numPlayers - 1)) {
+                if (newGameState.playersFolded === (numPlayers - 1)) { // Check if all other players have folded
                     const winnerIndex = newGameState.players.findIndex(player => player.lastAction !== "Fold");
                     newGameState.winners.push({playerIndex: winnerIndex, rankedHand: {rank: 0, best5: []}});
-                    console.log(`<-- All other players have folded. ${newGameState.winners[0].name} wins!`);
                     newGameState.state = 15; // Game State updates to resolve winner
                     setGameState(newGameState);
                     return;
                 }
                 const player = { ...newGameState.players[currentIndex % numPlayers] };
-                // Check if the player needs to take an action
-                if (player.lastAction === "" || (player.lastAction !== "Fold" && player.currentBet !== newGameState.highestBet)) {
+                if (player.lastAction === "" || (player.lastAction !== "Fold" && player.currentBet !== newGameState.highestBet)) { // Check if the player needs to take an action
                     roundResolved = false; // Set flag to false if any player needs to act
-                    console.log("<-- a player is able to go...")
                     if (player.name === "User Player") {
-                        // If it's the user's turn, set the game state to allow the user to make a choice
-                        newGameState.state = 7;
+                        newGameState.state = 7; // If it's the user's turn, set the game state to allow the user to make a choice
                         setGameState(newGameState);
                         return; // Exit the function to allow the user to make a choice
                     }
                     else {
-                        // Randomly decide an action for non-user players
-                        const randomFactor = Math.floor(Math.random() * 4);
-                        console.log(`<-- running ${player.name}'s turn...`);
+                        const randomFactor = Math.floor(Math.random() * 4); // Randomly decide an action for non-user players
+                        console.log(`--- measure ${player.name} ---`);
                         switch (randomFactor) {
                             case 0:
-                                console.log(`<-- ${player.name} folded...`);
                                 player.lastAction = "Fold";
                                 newGameState.playersFolded += 1;
                                 break;
@@ -569,19 +639,16 @@ const Poker = () => {
                             case 2:
                                 if (player.currentBet !== newGameState.highestBet) {
                                     const callAmount = newGameState.highestBet - player.currentBet;
-                                    console.log(`<-- ${player.name} will call (${callAmount})...`);
                                     player.lastAction = `Call (${callAmount})`;
                                     player.currentBet += callAmount;
                                     player.chips -= callAmount;
                                     newGameState.pot += callAmount;
                                 } else {
-                                    console.log(`<-- ${player.name} will check...`);
                                     player.lastAction = "Check";
                                 }
                                 break;
                             case 3:
                                 const raiseAmount = Math.floor(Math.random() * 20) + 1;
-                                console.log(`<-- ${player.name} will raise by ${raiseAmount}...`);
                                 player.lastAction = `Raise ${raiseAmount}`;
                                 if (player.currentBet !== newGameState.highestBet) {
                                     const callAmount = newGameState.highestBet - player.currentBet;
@@ -599,31 +666,26 @@ const Poker = () => {
                             default:
                                 return;
                         }
-                        // Set newGameState after deciding which random action a non-user takes
-                        newGameState.players[currentIndex % numPlayers] = player;
+                        newGameState.players[currentIndex % numPlayers] = player; // Set newGameState after deciding which random action a non-user takes
                     }
                 }
                 currentIndex++;
             }
-            // If all players's are resolved, move to the next stage of the game
-            if (roundResolved) {
-                console.log("<-- round resolved...")
-                console.log("River Length: " + newGameState.river.length)
+            if (roundResolved) { // If all players's are resolved, move to the next stage of the game
                 switch(newGameState.river.length) {
                     case 0:
-                        console.log("<-- initial flop...");
+                        console.log(`<-- stop phase: preflop round`);
                         newGameState.state = 11;
                         break;
-                    case 3: 
-                        console.log("<-- turn...");
+                    case 3:
+                        console.log(`<-- stop phase: turn round`);
                         newGameState.state = 12;
                         break;
-                    case 4: 
-                        console.log("<-- river...");
+                    case 4:
+                        console.log(`<-- stop phase: turn round`);
                         newGameState.state = 12;
                         break;
                     case 5:
-                        console.log("<-- determining winner...");
                         newGameState.state = 14;
                         break;
                     default:
@@ -647,6 +709,7 @@ const Poker = () => {
             }
         }
         setGameState(prevState => ({ ...prevState,  deck: newDeck, river: newRiver, state: 13}));
+        console.log(`<-- stop phase: initial flop`);
     }
 
     const turn = () => {
@@ -661,6 +724,7 @@ const Poker = () => {
             }
         }
         setGameState(prevState => ({ ...prevState,  deck: newDeck, river: newRiver, state: 13}));
+        console.log(`<-- stop phase: turn`);
     }
 
     const roundReset = () => {
@@ -672,6 +736,7 @@ const Poker = () => {
             }
         }
         setGameState(prevState => ({ ...prevState, players: newPlayers, state: 10}));
+        console.log(`<-- stop phase: round cleanup`);
     }
 
     const determineWinner = () => {
@@ -701,6 +766,7 @@ const Poker = () => {
         }
         newGameState.state = 15;
         setGameState(newGameState);
+        console.log("<-- stop phase: determine winner");
     }
 
     const determineFinalWinners = (newWinners) => {
@@ -735,7 +801,7 @@ const Poker = () => {
         return null; // Hands are equal
     }
 
-    const evaluateHand = (cards) => { // Function to evaluate the strength of a hand
+    const evaluateHand = (cards) => { // Function to create the rankedHand object which contains the hand's rank and the player's best5 cards
         const rankedHand = {
             rank: 1,
             best5: []
@@ -800,7 +866,7 @@ const Poker = () => {
         return rankedHand;
     }
 
-    const determineRoyalFlush = (cards) => { // Resolution functions to produce combination information
+    const determineRoyalFlush = (cards) => { // Resolution functions to return a best5 cards or false
         const flush = determineFlush(cards);
         if (flush !== false) {
             if (flush[0] === 14 && flush[1] === 13 && flush[2] === 12 && flush[3] === 11 && flush[4] === 10) {
@@ -1025,78 +1091,37 @@ const Poker = () => {
     }
 
     const resolveGame = () => {
-        /*
         const newGameState = {...gameState}
         const numWinners = newGameState.winners.length
         const numPlayers = newGameState.players.length
         const currentDealerIndex = newGameState.players.findIndex(player => player.dealer);
         const nextDealerIndex = (currentDealerIndex + 1) % newGameState.players.length;
+        const chipsPerWinner = Math.floor(newGameState.pot / numWinners); // chipsPerWinner finds the whole number of chips for each winner (if there is a decimal its rounded down)
+        let newPot = newGameState.pot
         for (let i = 0; i < numWinners; i++) {
-            const winnerIndex = newGameState.players.findIndex(player => player === newGameState.winners[i]);
-            newGameState.players[winnerIndex].chips += (newGameState.pot / numWinners) // can have partial chips -> might be worth solving this later on.........
+            newGameState.players[newGameState.winners[i].playerIndex].chips += chipsPerWinner
+            newPot -= chipsPerWinner // subtracts chipsPerWinner from the newPot
         }
+        newGameState.players[currentDealerIndex].dealer = false;
+        newGameState.players[nextDealerIndex].dealer = true;
         for (let i = 0; i < numPlayers; i++) {
-            if (i === currentDealerIndex) {
-                newGameState.players[i].dealer = false;
-            }
-            else if (i === nextDealerIndex) {
-                newGameState.players[i].dealer = true;
-            }
             newGameState.players[i].currentBet = 0
             newGameState.players[i].lastAction = ""
             newGameState.players[i].hand = []
         }
-        newGameState.pot = 0;
+        newGameState.pot = newPot; // if there is a remainder (pot is not evenly divisible by the number of players) the remainder is set to the next pot
         newGameState.river = [];
-        newGameState.state = 16;
         newGameState.highestBet = 0;
         newGameState.playersFolded = 0;
         newGameState.winners = [];
+        newGameState.state = 3;
         setGameState(newGameState);
-        */
+        console.log("<-- stop phase: resolve game");
     }
 
     return (
-        <div className={styles.pokerContainer}>
-            <div className={styles.canvasContainer}>
-                <canvas className={styles.poker} ref={canvasRef} width={1700} height={1000}></canvas>
-                {gameState.state !== 0 && (
-                    <img src={homeButton} alt="Home Button" id="home" className={styles.homeButton} onClick={(e) => buttonHandler(e)}/>
-                )}
-                {gameState.state === 0 && (
-                    <div className={styles.gameState0Container}>
-                        <div className={styles.flexBox}>
-                            <img src={pokerTime} alt="Poker Time Logo" className={styles.logo} />
-                            <h1 className={styles.heading1}>
-                                <span className={styles.whiteText}>
-                                    Poker Time Project
-                                </span>
-                            </h1>
-                        </div>
-                        <button className={styles.playButton} id="play" onClick={(e) => buttonHandler(e)}>Play</button>
-                    </div>
-                )}
-                {gameState.state === 1 && (
-                    <div className={styles.gameState1Container}>
-                        <h1 className={styles.heading3}>
-                            <span className={styles.whiteText}>
-                                Difficulty
-                            </span>
-                        </h1>
-                        <div className={styles.flexBoxSpaceBetween}>
-                            <button className={styles.difficultyButton} id="easy" onClick={(e) => buttonHandler(e)}>Easy</button>
-                            <button className={styles.difficultyButton} id="medium" onClick={(e) => buttonHandler(e)}>Medium</button>
-                            <button className={styles.difficultyButton} id="hard" onClick={(e) => buttonHandler(e)}>Hard</button>
-                        </div>
-                    </div>
-                )}
-                {gameState.state === 4 && (
-                    <div className={styles.gameState2Container}>
-                        <button className={styles.clickToContinueButton} id="start" onClick={(e) => buttonHandler(e)}>Click anywhere to begin...</button>
-                    </div>
-                )}
-            </div>
-        </div>
+        <canvas className={styles.poker} ref={canvasRef} width={1700} height={1000}>
+        </canvas>
     )
 }
 
