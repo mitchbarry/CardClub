@@ -49,11 +49,9 @@ const Poker = () => {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
         setCtx(context);
-        // Add event listeners for mouse movement and clicks
-        canvas.addEventListener('click', handleCanvasClick);
+        canvas.addEventListener('click', handleCanvasClick); // Add event listeners for mouse movement and clicks
         return () => {
-            // Cleanup: remove event listeners when the component unmounts
-            canvas.removeEventListener('click', handleCanvasClick);
+            canvas.removeEventListener('click', handleCanvasClick); // Cleanup: remove event listeners when the component unmounts
         };
     }, [gameState.state]);
 
@@ -91,6 +89,9 @@ const Poker = () => {
         if (gameState.state === 3) {
             setGameState(prevState => ({ ...prevState, state: 4}));
         }
+        if (gameState.state === 15) {
+            setGameState(prevState => ({ ...prevState, state: 16}));
+        }
         Object.keys(interactables).forEach((key) => {
             const { buttonX, buttonY, buttonWidth, buttonHeight } = interactables[key];
             if (x >= buttonX && x <= buttonX + buttonWidth && y >= buttonY && y <= buttonY + buttonHeight) {
@@ -104,21 +105,6 @@ const Poker = () => {
                         if (gameState.state >= 1) {
                             setGameState(prevState => ({ ...prevState, state: 0}));
                         }
-                    case 'foldButton':
-                        if (gameState.state === 7) {
-                            playerFold();
-                        }
-                        break;
-                    case 'checkButton':
-                        if (gameState.state === 7) {
-                            playerCheck();
-                        }
-                        break;
-                    case 'raiseButton':
-                        if (gameState.state === 7) {
-                            playerRaise();
-                        }
-                        break;
                     case 'easyButton':
                         if (gameState.state === 1) {
                             setGameState(prevState => ({ ...prevState, difficulty: 0, state: 2 }));
@@ -132,6 +118,21 @@ const Poker = () => {
                     case 'hardButton':
                         if (gameState.state === 1) {
                             setGameState(prevState => ({ ...prevState, difficulty: 2, state: 2 }));
+                        }
+                        break;
+                    case 'foldButton':
+                        if (gameState.state === 7) {
+                            playerFold();
+                        }
+                        break;
+                    case 'checkButton':
+                        if (gameState.state === 7) {
+                            playerCheck();
+                        }
+                        break;
+                    case 'raiseButton':
+                        if (gameState.state === 7) {
+                            playerRaise();
                         }
                         break;
                     default:
@@ -165,7 +166,7 @@ const Poker = () => {
             if (gameState.river.length !== 0) {
                 drawRiver();
             }
-            if (gameState.state === 3) {
+            if (gameState.state === 3 || gameState.state === 15) {
                 drawContinue();
                 return;
             }
@@ -194,22 +195,17 @@ const Poker = () => {
     }
 
     const drawPlayer = (x, y, playerIndex, dealerIndex) => {
-        // Set font style
         ctx.font = '20px Arial';
-        // Draw current Bet
-        ctx.fillStyle = 'whitesmoke';
+        ctx.fillStyle = 'whitesmoke'; // Draw current Bet
         ctx.fillText('Current Bet: ' + gameState.players[playerIndex].currentBet, x, y - 10);
-        // Draw chip count
-        ctx.fillStyle = 'whitesmoke';
+        ctx.fillStyle = 'whitesmoke'; // Draw chip count
         ctx.fillText('Chips: ' + gameState.players[playerIndex].chips, x, y - 40);
-        // Draw player name
-        ctx.fillStyle = 'black';
+        ctx.fillStyle = 'black'; // Draw player name
         ctx.fillText(gameState.players[playerIndex].name, x, y - 70);
-        // Draw dealer status
-        const numPlayers = gameState.players.length;
+        const numPlayers = gameState.players.length; 
         const smallBlindIndex = (dealerIndex + 1) % numPlayers;
         const bigBlindIndex = (dealerIndex + 2) % numPlayers;
-        if (playerIndex === dealerIndex) {
+        if (playerIndex === dealerIndex) { // Draw dealer status
             ctx.fillStyle = 'yellow';
             ctx.fillText('Dealer', x, y - 100);
         }
@@ -221,16 +217,32 @@ const Poker = () => {
             ctx.fillStyle = 'yellow';
             ctx.fillText('Small Blind', x, y - 100);
         }
-        // Draw Last Action
-        ctx.fillStyle = 'whitesmoke';
+        ctx.fillStyle = 'whitesmoke'; // Draw Last Action
         ctx.fillText(gameState.players[playerIndex].lastAction, x, y - 130);
+        if (gameState.state === 15) {
+            for (const winner of gameState.winners) {
+                if (playerIndex === winner.playerIndex) {
+                    ctx.font = '26px Arial';
+                    ctx.fillStyle = 'cyan';
+                    ctx.fillText(`Wins!`, x + 140, y - 100);
+                    ctx.fillText(`Hand Rank: ${winner.rankedHand.rank}`, x + 140, y - 70);
+                    if (winner.rankedHand.best5 !== []){
+                        for (let i = 0; i < winner.rankedHand.best5.length; i++) {
+                            ctx.fillText(`${winner.rankedHand.best5[i].number} of ${winner.rankedHand.best5[i].suit}`, x + 140, y - 130 - (i * 30));
+                        }
+                    }
+                }
+            }
+        }
     };
 
     const drawHand = (x, y, player) => {
         for (let i = 0; i < player.hand.length; i++) {
-            // Set font style
             ctx.font = '24px Arial';
             ctx.fillStyle ='black';
+            ctx.fillStyle = player.hand[i].suit === "d" || player.hand[i].suit === "h" ? 'red' : 'black'; // THIS IS A TEMPORARY COPY OF THE ONE BELOW
+            ctx.fillText(unabbreviate(player.hand[i].number) + " of " + unabbreviate(player.hand[i].suit), x, y - ((i * 30) + 160)); // THIS IS A TEMPORARY COPY OF THE ONE BELOW
+            /*
             if (player.name !== "User Player") {
                 ctx.fillText("unknown", x, y - ((i * 30) + 160));
             }
@@ -238,12 +250,12 @@ const Poker = () => {
                 ctx.fillStyle = player.hand[i].suit === "d" || player.hand[i].suit === "h" ? 'red' : 'black';
                 ctx.fillText(unabbreviate(player.hand[i].number) + " of " + unabbreviate(player.hand[i].suit), x, y - ((i * 30) + 160));
             }
+            */
         }
     }
     
     const drawPot = () => {
         const centerX = ctx.canvas.width / 2;
-        // Set font style
         ctx.font = '24px Arial';
         ctx.fillStyle = 'whitesmoke';
         ctx.fillText('Pot: ' + gameState.pot, centerX, 200);
@@ -252,7 +264,6 @@ const Poker = () => {
 
     const drawDeck = () => {
         const centerX = ctx.canvas.width / 2;
-        // Set font style
         ctx.font = '24px Arial';
         ctx.fillStyle = 'black';
         ctx.fillText('Deck: ' + gameState.deck.length + " cards", centerX, 230);
@@ -367,34 +378,14 @@ const Poker = () => {
         12 - turn comes out -> move to state 13 to reset round
         13 - round reset -> remaining player's lastActions are reset to "" -> move to state 7 to begin resolution of a round that isn't the first (starts left of the dealer)
         14 - determine winner -> river is out and last round is resolved -> a winner is decided by best hand (this will never activate in the case that someone wins by being the last remaining)
-        15 - resolving game -> pot is distributed back to the winner(s), player's hands are reset, river is reset, winning hand is highlighted in the display -> state gets set back to 3
+        15 - click to continue screen -> winner can be seen with winning hand, and amount won
+        16 - resolving game -> pot is distributed back to the winner(s), player's hands are reset, river is reset, winning hand is highlighted in the display -> state gets set back to 3
     */
-
-    const buttonHandler = (e) => {
-        switch(e.target.id) {
-            case "home":
-                setGameState({ // This fully resets the game right now but eventually I'd like to not do this?
-                    state: 0,
-                    playerCount: 5,
-                    difficulty: 0,
-                    deck: [],
-                    river: [],
-                    pot: 0,
-                    players: [],
-                    highestBet: 0,
-                    playersFolded: 0,
-                    winners: []
-                    });
-                break;
-            default:
-                return;
-        }
-    }
 
     useEffect(() => {
         switch(gameState.state) {
             case 0:
-                setGameState(prevState => ({ ...prevState, difficulty: 0, deck: [], river: [], pot: 0, players: []}));
+                setGameState(prevState => ({ ...prevState, difficulty: 0, deck: [], river: [], pot: 0, players: [], highestBet: 0, playersFolded: 0, winners: []}));
                 break;
             case 1:
                 console.log(`--- user is deciding... ---`);
@@ -449,6 +440,9 @@ const Poker = () => {
                 determineWinner();
                 break;
             case 15:
+                console.log(`--- User is deciding... ---`);
+                break;
+            case 16:
                 console.log("--> start phase: resolve game");
                 resolveGame();
                 break;
@@ -876,6 +870,7 @@ const Poker = () => {
                 return false;
             }
         }
+        return false;
     }
     
     const determineStraightFlush = (cards) => {
@@ -888,10 +883,11 @@ const Poker = () => {
                 return false;
             }
         }
+        return false;
     }
     
     const determineFourOfAKind = (cards) => {
-        const best5 = [];
+        let best5 = [];
         const cardCounts = {};
         cards.forEach(card => {
             if (!cardCounts[card.number]) {
@@ -901,7 +897,7 @@ const Poker = () => {
         });
         for (const number in cardCounts) { // Iterate over card numbers
             if (cardCounts[number].length === 4) {
-                best5.concat(cardCounts[number]);
+                best5 = best5.concat(cardCounts[number]);
                 for (let i = cards.length - 1; i >= 0; i--) { // Adding the kicker to the best5 array
                     if (cards[i].number !== best5[0].number) {
                         best5.push(cards[i]);
@@ -918,7 +914,7 @@ const Poker = () => {
     }
     
     const determineFullHouse = (cards) => {
-        const best5 = [];
+        let best5 = [];
         const cardCounts = {};
         let hasPair = false;
         let hasThreeOfAKind = false;
@@ -931,11 +927,11 @@ const Poker = () => {
         for (const number in cardCounts) { // Check if there are two different card numbers with counts 3 and 2 iterating over card numbers
             if (best5.length !== 5) {
                 if (cardCounts[number].length === 2 && !hasPair) {
-                    best5.concat(cardCounts[number]);
+                    best5 = best5.concat(cardCounts[number]);
                     hasPair = true;
                 }
                 if (cardCounts[number].length === 3 && !hasThreeOfAKind) {
-                    best5.concat(cardCounts[number]);
+                    best5 = best5.concat(cardCounts[number]);
                     hasThreeOfAKind = true;
                 }
             }
@@ -948,7 +944,7 @@ const Poker = () => {
     }
     
     const determineFlush = (cards) => {
-        const best5 = [];
+        let best5 = [];
         const suitCards = {};
         cards.forEach(card => {
             if (!suitCards[card.suit]) {
@@ -974,7 +970,7 @@ const Poker = () => {
         for (let i = 0; i < cards.length - 1; i++) {
             straightCards.push(cards[i]);
             if (straightCards.length >= 3) {
-                best5 = straightCards;
+                best5 = [...straightCards];
             }
             if (cards[i + 1].number - cards[i].number !== -1) { // Check if the next card forms a straight
                 straightCards = []; // Reset straightCards if no straight is formed
@@ -996,7 +992,7 @@ const Poker = () => {
     };
 
     const determineThreeOfAKind = (cards) => {
-        const best5 = [];
+        let best5 = [];
         const cardCounts = {};
         cards.forEach(card => {
             if (!cardCounts[card.number]) {
@@ -1006,7 +1002,7 @@ const Poker = () => {
         });
         for (const number in cardCounts) { // Iterate over card numbers
             if (cardCounts[number].length === 3) {
-                best5.concat(cardCounts[number]);
+                best5 = best5.concat(cardCounts[number]);
                 for (let i = 0; i < cards.length; i++) { // Adding the two kickers to the best5 array
                     if (!best5.map(card => card.number).includes(cards[i].number)) {
                         best5.push(cards[i]);
@@ -1024,7 +1020,7 @@ const Poker = () => {
     }
     
     const determineTwoPair = (cards) => {
-        const best5 = [];
+        let best5 = [];
         const cardCounts = {};
         cards.forEach(card => {
             if (!cardCounts[card.number]) {
@@ -1034,7 +1030,7 @@ const Poker = () => {
         });
         for (const number in cardCounts) { // Iterate over card numbers
             if (cardCounts[number].length === 2) {
-                best5.concat(cardCounts[number]);
+                best5 = best5.concat(cardCounts[number]);
                 if (best5.length === 4) {
                     for (let i = 0; i < cards.length; i++) { // Adding the two kickers to the best5 array
                         if (!best5.map(card => card.number).includes(cards[i].number)) {
@@ -1056,7 +1052,7 @@ const Poker = () => {
     }
 
     const determinePair = (cards) => {
-        const best5 = [];
+        let best5 = [];
         const cardCounts = {};
         cards.forEach(card => {
             if (!cardCounts[card.number]) {
@@ -1066,7 +1062,7 @@ const Poker = () => {
         });
         for (const number in cardCounts) { // Iterate over card numbers
             if (cardCounts[number].length === 2) {
-                best5.concat(cardCounts[number]);
+                best5 = best5.concat(cardCounts[number]);
                 for (let i = 0; i < cards.length; i++) { // Adding the three kickers to the best5 array
                     if (!best5.map(card => card.number).includes(cards[i].number)) {
                         best5.push(cards[i]);
@@ -1114,7 +1110,7 @@ const Poker = () => {
         newGameState.highestBet = 0;
         newGameState.playersFolded = 0;
         newGameState.winners = [];
-        newGameState.state = 3;
+        newGameState.state = 4;
         setGameState(newGameState);
         console.log("<-- stop phase: resolve game");
     }
