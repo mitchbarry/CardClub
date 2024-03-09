@@ -105,6 +105,7 @@ const Poker = () => {
                         if (gameState.state >= 1) {
                             setGameState(prevState => ({ ...prevState, state: 0}));
                         }
+                        break;
                     case 'easyButton':
                         if (gameState.state === 1) {
                             setGameState(prevState => ({ ...prevState, difficulty: 0, state: 2 }));
