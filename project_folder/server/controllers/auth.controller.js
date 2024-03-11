@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-import User from '../user.model.js';
+import User from '../models/user.model.js';
 
 const authController = {
     generateAuthToken(user) {

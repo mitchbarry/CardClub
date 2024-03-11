@@ -3,7 +3,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import dbConnect from './config/mongoose.config.js';
-import router from './routes/poker.routes.js';
+import userRouter from './routes/user.routes.js';
+import authRouter from './routes/auth.routes.js';
+import lobbyRouter from './routes/lobby.routes.js';
 import utilities from "./utilities/poker.utilities.js"
 
 dbConnect();
@@ -16,7 +18,9 @@ dotenv.config();
 
 const PORT = process.env.PORT;
 
-app.use('/api', router);
+app.use('/api/users', userRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/lobbies', lobbyRouter);
 
 app.use((req, res, next) => {
     const error = new Error("Not Found")
