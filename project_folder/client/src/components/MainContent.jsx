@@ -1,11 +1,17 @@
 import { Routes,Route,useLocation,useNavigate } from "react-router-dom";
 import { useState,useEffect } from "react";
 
-import CardClubService from "../services/CardClubService";
+import Error from "../views/Error";
+import Home from "../views/Home";
+import RegisterForm from "../views/RegisterForm";
+import LoginForm from "../views/LoginForm";
+import Account from "../views/Account";
+import AccountForm from "../views/AccountForm";
+import Lobbies from "../views/Lobbies";
+import LobbyForm from "../views/LobbyForm";
+import Play from "../views/Play";
 
-import styles from "../css/MainContent.module.css";
-import Sidebar from "../components/Sidebar";
-import Poker from "../views/Poker";
+import styles from "../css/components/MainContent.module.css";
 
 const MainContent = (props) => {
 
@@ -14,38 +20,32 @@ const MainContent = (props) => {
 
     const {user, token, loginHandler, logoutHandler} = props
 
-    const mealUpdater = (newMeal) => {
-        setMeal(() => newMeal)
-    }
+    const [error, setError] = useState(null); // State to hold error message
 
+    // ERRORS TO DO: 401 Unauthorized, 403 Forbidden?, Timeout page?
     useEffect(() => {
-        if (location.pathname === "/") {
-            setMeal({})
-            navigate("/meals")
-            return
-        }
+        setError(null);
         let lowercasePathname = location.pathname.toLowerCase()
-        let paths = ["/meals","/meals/new", "/error404"]
-        if (paths.includes(lowercasePathname)) {
-            setMeal({})
-            return
+        let paths = ["/error", "/", "/register", "/login", "/account", "/account/edit", "/lobbies", "/lobbies/create", "/lobbies/edit", "/play"]
+        if (!paths.includes(lowercasePathname)) {
+            navigate("/error")
+            const normalizedError404 = {
+                statusCode: 404, // Set the status code accordingly
+                message: "Resource not found", // Set the error message
+                name: "Not Found", // Set the error name
+                validationErrors: {}
+            };
+            setError(normalizedError404)
         }
-        if (MealService.pathValidator(lowercasePathname)) {
-            return
-        }
-        else {
-            setMeal({})
-            navigate("/error404")
-        }
-    }, [location.pathname])
+    }, [location.pathname, navigate])
 
     return (
         <div className={styles.mainContent}>
             <Routes>
-                <Route path="/error" element={<Error />}/>
-                <Route path="/" element={<Home />} />
+                <Route path="/error" element={<Error error={error} />}/>
                 <Route path="/register" element={ <RegisterForm /> }/>
                 <Route path="/login" element={ <LoginForm /> }/>
+                <Route path="/" element={<Home />} />
                 <Route path="/account" element={ <Account meal={meal} mealUpdater={mealUpdater}/> }/>
                 <Route path="/account/edit" element={ <AccountForm meal={meal} mealUpdater={mealUpdater}/> }/>
                 <Route path="/lobbies" element={ <Lobbies meal={meal} mealUpdater={mealUpdater}/> }/>

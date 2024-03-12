@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 
 import homeButton from "../assets/homeButton.png"
 import pokerTime from "../assets/pokerLogo.png"
-import styles from "../css/Poker.module.css";
+import styles from "../css/components/Poker.module.css";
 
 const Poker = () => {
 

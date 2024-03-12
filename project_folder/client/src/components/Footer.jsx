@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 import linkedInLogo from "../assets/linkedInLogo.png"
 import gitHubLogo from "../assets/gitHubLogo.png"
-import styles from "../css/Footer.module.css";
+import styles from "../css/components/Footer.module.css";
 
 const Footer = () => {
 

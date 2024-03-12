@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 import pokerTime from "../assets/pokerLogo.png"
-import styles from "../css/Header.module.css";
+import styles from "../css/components/Header.module.css";
 
 const Header = () => {
 

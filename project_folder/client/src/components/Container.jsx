@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import MainContent from "../components/MainContent";
 import Footer from "../components/Footer";
 
-import styles from "../css/Container.module.css";
+import styles from "../css/components/Container.module.css";
 
 const Container = () => {
 
