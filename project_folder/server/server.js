@@ -6,7 +6,7 @@ import dbConnect from './config/mongoose.config.js';
 import userRouter from './routes/user.routes.js';
 import authRouter from './routes/auth.routes.js';
 import lobbyRouter from './routes/lobby.routes.js';
-import utilities from "./utilities/poker.utilities.js"
+import utilities from "./utilities/cardClub.utilities.js"
 
 dbConnect();
 

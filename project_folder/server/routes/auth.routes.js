@@ -10,7 +10,7 @@ router.route("/register") // Register a new user
 router.route("/login") // Login route
     .post(authController.loginUser);
     
-router.route("/register") // Logout route
+router.route("/logout") // Logout route
     .post(authController.logoutUser);
 
 export default router;

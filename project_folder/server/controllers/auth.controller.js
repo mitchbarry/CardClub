@@ -5,7 +5,7 @@ import User from '../models/user.model.js';
 
 const authController = {
     generateAuthToken(user) {
-        return jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        return jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '12h' });
     },
     async registerUser(req, res, next) {
         try {

@@ -1,4 +1,4 @@
-const pokerUtilities = {
+const cardClubUtilities = {
     extractValidationErrors(error) {
         const validationErrors = {}
         if (error.name === "ValidationError") {
@@ -13,4 +13,4 @@ const pokerUtilities = {
     }
 };
 
-export default pokerUtilities;
+export default cardClubUtilities;
