@@ -5,32 +5,34 @@ import authService from "../services/AuthService";
 
 import styles from "../css/views/RegisterForm.module.css";
 
-const RegisterForm = () => {
+const RegisterForm = (props) => {
 
     const navigate = useNavigate()
 
-    const inputs = ["username", "email", "password", "confirmPassword", "birthDate"]
+    const {loginHandler} = props
+
+    const inputs = ["username", "email", "birthDate", "password", "confirmPassword"]
 
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
+    const [birthDate, setBirthDate] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
-    const [birthDate, setBirthDate] = useState("")
     const [errors, setErrors] = useState([])
     const [showNotification, setShowNotification] = useState(false)
     const [formErrors, setFormErrors] = useState({
         username: "Username is required!",
         email: "Email is required!",
+        birthDate: "Birthday is required!",
         password: "Password is required!",
-        confirmPassword: "Confirm password is required!",
-        birthDate: "Birthday is required!"
+        confirmPassword: "Confirm password is required!"
     })
     const [initialRender, setInitialRender] = useState({
         username: true,
         email: true,
+        birthDate: true,
         password: true,
-        confirmPassword: true,
-        birthDate: true
+        confirmPassword: true
     })
 
     const inputHandler = (e) => {
@@ -39,12 +41,12 @@ const RegisterForm = () => {
                 return usernameHandler(e);
             case "email":
                 return emailHandler(e);
+            case "birthDate":
+                return birthDateHandler(e);
             case "password":
                 return passwordHandler(e);
             case "confirmPassword":
                 return confirmPasswordHandler(e);
-            case "birthDate":
-                return birthDateHandler(e);
             default:
                 return;
         }
@@ -88,6 +90,17 @@ const RegisterForm = () => {
         setFormErrors({...formErrors, email: errorMsg})
     }
 
+    const birthDateHandler = (e) => {
+        setBirthDate(e.target.value)
+        setInitialRender({...initialRender, birthDate: false})
+        let errorMsg = ""
+        let value = e.target.value
+        if (!value) {
+            errorMsg = "Birthday is required!"
+        }
+        setFormErrors({...formErrors, birthDate: errorMsg})
+    }
+
     const passwordHandler = (e) => {
         setPassword(e.target.value)
         setInitialRender({...initialRender, password: false})
@@ -123,36 +136,29 @@ const RegisterForm = () => {
         setFormErrors({...formErrors, confirmPassword: errorMsg})
     }
 
-    const birthDateHandler = (e) => {
-        setBirthDate(e.target.value)
-        setInitialRender({...initialRender, birthDate: false})
-        let errorMsg = ""
-        let value = e.target.value
-        if (!value) {
-            errorMsg = "Birthday is required!"
-        }
-        setFormErrors({...formErrors, birthDate: errorMsg})
-    }
-
-    const submitHandler = (e) => {
+    const submitHandler = async (e) => {
         e.preventDefault();
-        if (validateForm) {
-            authService.register({
-                username,
-                email,
-                password,
-                birthDate
-            })
-            .then(response => {
-                console.log(response)
-                navigate("/dashboard")
-            })
-            .catch(error => {
-                setErrors(error.response.data)
-                setShowNotification(true)
-            })
+        if (validateForm()) {
+            try {
+                const response = await authService.register({
+                    username,
+                    email,
+                    password,
+                    birthDate
+                });
+                loginHandler(response.data);
+                navigate("/dashboard");
+            }
+            catch (error) {
+                if (error.response) { // Handle registration error
+                    setErrors([...errors, error.response.data.message]); // If server returns an error response
+                } else {
+                    console.error("Registration failed:", error); // If there's a network error or other unexpected error
+                    setErrors([...errors, "An unexpected error occurred. Please try again later."]);
+                }
+            }
         }
-    }
+    };
 
     const validateForm = () => {
         return Object.values(formErrors).every(key => formErrors[key] === "")
@@ -178,36 +184,34 @@ const RegisterForm = () => {
                 </ul>
             )}
             <form className={styles.flexForm} onSubmit={submitHandler}>
-                <div className={styles.flexFormColumn}>
-                    <label htmlFor="name" className={styles.whiteLabel}>Dish Name:</label>
-                    <input className={formErrors.name && !initialRender.name ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="name" name="name" value={name} onChange={(e) => inputHandler(e)}></input>
-                    {formErrors.name && !initialRender.name && (
-                        <p className={styles.paragraphError}>{formErrors.name}</p>
-                    )}
-                    <label htmlFor="minutes" className={styles.whiteLabel}>Total Minutes:</label>
-                    <input className={formErrors.minutes && !initialRender.minutes ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="number" id="minutes" name="minutes" value={minutes} onChange={(e) => inputHandler(e)}></input>
-                    {formErrors.minutes && !initialRender.minutes && (
-                        <p className={styles.paragraphError}>{formErrors.minutes}</p>
-                    )}
-                    <label htmlFor="directions" className={styles.whiteLabel}>Directions:</label>
-                    <input className={formErrors.directions && !initialRender.directions ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="directions" name="directions" value={directions} onChange={(e) => inputHandler(e)}></input>
-                    {formErrors.directions && !initialRender.directions && (
-                        <p className={styles.paragraphError}>{formErrors.directions}</p>
-                    )}
-                    <label htmlFor="directions" className={styles.whiteLabel}>Directions:</label>
-                    <input className={formErrors.directions && !initialRender.directions ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="directions" name="directions" value={directions} onChange={(e) => inputHandler(e)}></input>
-                    {formErrors.directions && !initialRender.directions && (
-                        <p className={styles.paragraphError}>{formErrors.directions}</p>
-                    )}
-                    <label htmlFor="directions" className={styles.whiteLabel}>Directions:</label>
-                    <input className={formErrors.directions && !initialRender.directions ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="directions" name="directions" value={directions} onChange={(e) => inputHandler(e)}></input>
-                    {formErrors.directions && !initialRender.directions && (
-                        <p className={styles.paragraphError}>{formErrors.directions}</p>
-                    )}
-                    <button className={validateForm() ? styles.blueButton : styles.blueButtonDisabled} type="submit" disabled={!validateForm()}>
-                        Create
-                    </button>
-                </div>
+                <label htmlFor="username" className={styles.whiteLabel}>Username:</label>
+                <input className={formErrors.username && !initialRender.username ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="username" name="username" value={username} onChange={(e) => inputHandler(e)}></input>
+                {formErrors.username && !initialRender.username && (
+                    <p className={styles.paragraphError}>{formErrors.username}</p>
+                )}
+                <label htmlFor="email" className={styles.whiteLabel}>Email:</label>
+                <input className={formErrors.email && !initialRender.email ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="email" name="email" value={email} onChange={(e) => inputHandler(e)}></input>
+                {formErrors.email && !initialRender.email && (
+                    <p className={styles.paragraphError}>{formErrors.email}</p>
+                )}
+                <label htmlFor="birthDate" className={styles.whiteLabel}>Birthday:</label>
+                <input className={formErrors.birthDate && !initialRender.birthDate ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="date" id="birthDate" name="birthDate" value={birthDate} onChange={(e) => inputHandler(e)}></input>
+                {formErrors.birthDate && !initialRender.birthDate && (
+                    <p className={styles.paragraphError}>{formErrors.birthDate}</p>
+                )}
+                <label htmlFor="password" className={styles.whiteLabel}>Password:</label>
+                <input className={formErrors.password && !initialRender.password ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="password" name="password" value={password} onChange={(e) => inputHandler(e)}></input>
+                {formErrors.password && !initialRender.password && (
+                    <p className={styles.paragraphError}>{formErrors.password}</p>
+                )}
+                <label htmlFor="confirmPassword" className={styles.whiteLabel}>Confirm Password:</label>
+                <input className={formErrors.confirmPassword && !initialRender.confirmPassword ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={(e) => inputHandler(e)}></input>
+                {formErrors.confirmPassword && !initialRender.confirmPassword && (
+                    <p className={styles.paragraphError}>{formErrors.confirmPassword}</p>
+                )}
+                <button className={validateForm() ? styles.blueButton : styles.blueButtonDisabled} type="submit" disabled={!validateForm()}>
+                    Register
+                </button>
             </form>
         </div>
     );

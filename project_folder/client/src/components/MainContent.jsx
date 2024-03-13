@@ -44,7 +44,7 @@ const MainContent = (props) => {
             <Routes>
                 <Route path="/error" element={<Error error={error} />}/>
                 <Route path="/" element={<Home />}/>
-                <Route path="/register" element={ <RegisterForm /> }/>
+                <Route path="/register" element={ <RegisterForm loginHandler={loginHandler} /> }/>
                 <Route path="/login" element={ <LoginForm /> }/>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/account" element={ <Account meal={meal} mealUpdater={mealUpdater}/> }/>
