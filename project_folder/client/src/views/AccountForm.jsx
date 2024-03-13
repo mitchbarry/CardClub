@@ -1,12 +1,14 @@
-import styles from "../css/XXXXXXXX.module.css";
+import styles from "../css/views/AccountForm.module.css";
 
-const XXXXXXXX = () => {
+const AccountForm = (props) => {
+
+    const {user} = props
 
     return (
-        <div className={styles.XXXXXXXX}>
+        <div>
 
         </div>
     )
 }
 
-export default XXXXXXXX;
+export default AccountForm;

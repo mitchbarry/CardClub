@@ -48,6 +48,10 @@ const authController = {
     },
     async logoutUser(req, res, next) {
         try {
+            /* this may be used to write a token blacklist
+            const token = req.headers.authorization.split(' ')[1]; // Extract and verify the token from the request headers
+            const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+            */
             res.json({ message: "Logout successful" });
         }
         catch (error) {

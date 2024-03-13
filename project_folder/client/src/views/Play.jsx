@@ -1,12 +1,17 @@
-import styles from "../css/XXXXXXXX.module.css";
+import Sidebar from "../components/Sidebar";
+import Poker from "../components/Poker";
 
-const XXXXXXXX = () => {
+import styles from "../css/views/Play.module.css";
+
+const Play = () => {
 
     return (
-        <div className={styles.XXXXXXXX}>
-
+        <div>
+            <Sidebar />
+            <Poker />
+            <Sidebar />
         </div>
     )
 }
 
-export default XXXXXXXX;
+export default Play;

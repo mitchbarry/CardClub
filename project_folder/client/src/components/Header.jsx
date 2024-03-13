@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import pokerTime from "../assets/pokerLogo.png"
 import styles from "../css/components/Header.module.css";
 
-const Header = () => {
+const Header = (props) => {
+
+    const {user, logoutHandler} = props
 
     return (
         <div className={styles.header}>

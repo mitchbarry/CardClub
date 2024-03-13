@@ -5,6 +5,7 @@ import Error from "../views/Error";
 import Home from "../views/Home";
 import RegisterForm from "../views/RegisterForm";
 import LoginForm from "../views/LoginForm";
+import Dashboard from "../views/Dashboard";
 import Account from "../views/Account";
 import AccountForm from "../views/AccountForm";
 import Lobbies from "../views/Lobbies";
@@ -22,7 +23,7 @@ const MainContent = (props) => {
 
     const [error, setError] = useState(null); // State to hold error message
 
-    // ERRORS TO DO: 403 Forbidden
+    // ERRORS TO DO: 403 Forbidden (if applicable)
     useEffect(() => {
         setError(null);
         let lowercasePathname = location.pathname.toLowerCase()
@@ -40,7 +41,7 @@ const MainContent = (props) => {
             navigate("/error")
         }
         else if (authPaths.includes(lowercasePathname)) {
-            if (!user._id || token === "") {
+            if (token === "") {
                 normalizedError = {
                     statusCode: 401,
                     message: "Unauthorized access",
@@ -60,18 +61,18 @@ const MainContent = (props) => {
     return (
         <div className={styles.mainContent}>
             <Routes>
-                <Route path="/error" element={<Error error={error} />}/>
+                <Route path="/error" element={<Error error={error} token={token} />}/>
                 <Route path="/" element={<Home />}/>
                 <Route path="/register" element={ <RegisterForm responseLoginHandler={responseLoginHandler} /> }/>
                 <Route path="/login" element={ <LoginForm responseLoginHandler={responseLoginHandler} /> }/>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/account" element={ <Account meal={meal} mealUpdater={mealUpdater}/> }/>
-                <Route path="/account/edit" element={ <AccountForm meal={meal} mealUpdater={mealUpdater}/> }/>
-                <Route path="/lobbies" element={ <Lobbies meal={meal} mealUpdater={mealUpdater}/> }/>
-                <Route path="/lobbies/create" element={ <LobbyForm meal={meal} mealUpdater={mealUpdater}/> }/>
-                <Route path="/lobbies/edit" element={ <LobbyForm meal={meal} mealUpdater={mealUpdater}/> }/>
-                <Route path="/play" element={ <Play meal={meal} mealUpdater={mealUpdater}/> }/>
-                <Route path="*" element={<Error />}/>
+                <Route path="/dashboard" element={<Dashboard user={user} />} />
+                <Route path="/account" element={ <Account user={user} /> }/>
+                <Route path="/account/edit" element={ <AccountForm user={user} /> }/>
+                <Route path="/lobbies" element={ <Lobbies /> }/>
+                <Route path="/lobbies/create" element={ <LobbyForm /> }/>
+                <Route path="/lobbies/edit" element={ <LobbyForm /> }/>
+                <Route path="/play" element={ <Play /> }/>
+                <Route path="*" element={<Error error={error} token={token} />} />
             </Routes>
         </div>
     )

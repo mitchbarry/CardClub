@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import Cookies from "js-cookie";
 
 import AuthService from "../services/AuthService";
@@ -33,7 +33,7 @@ const Container = () => {
 
     const logoutHandler = async () => { // Function to handle user logout
         try {
-            await AuthService.logout();
+            await AuthService.logout(/*token*/); // token may be passed through to invalidate it via a blacklist (have not yet implemented)
             setToken(""); // Clear the authentication token from state
             setUser({}); // Clear the user information from state
             Cookies.remove('token');
@@ -53,7 +53,7 @@ const Container = () => {
     return (
         <div className={styles.container}>
             <Header user={user} logoutHandler={logoutHandler} />
-            <MainContent user={user} token={token} responseLoginHandler={responseLoginHandler} logoutHandler={logoutHandler} />
+            <MainContent user={user} token={token} responseLoginHandler={responseLoginHandler}/>
             <Footer />
         </div>
     )

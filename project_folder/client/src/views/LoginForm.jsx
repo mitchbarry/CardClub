@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import authService from "../services/AuthService";
 
-import styles from "../css/LoginForm.module.css";
+import styles from "../css/views/LoginForm.module.css";
 
 const LoginForm = (props) => {
 

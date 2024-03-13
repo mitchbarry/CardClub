@@ -1,12 +1,12 @@
-import styles from "../css/XXXXXXXX.module.css";
+import styles from "../css/views/Lobbies.module.css";
 
-const XXXXXXXX = () => {
+const Lobbies = () => {
 
     return (
-        <div className={styles.XXXXXXXX}>
+        <div>
 
         </div>
     )
 }
 
-export default XXXXXXXX;
+export default Lobbies;

@@ -1,12 +1,12 @@
-import styles from "../css/XXXXXXXX.module.css";
+import styles from "../css/views/LobbyForm.module.css";
 
-const XXXXXXXX = () => {
+const LobbyForm = () => {
 
     return (
-        <div className={styles.XXXXXXXX}>
+        <div>
 
         </div>
     )
 }
 
-export default XXXXXXXX;
+export default LobbyForm;
