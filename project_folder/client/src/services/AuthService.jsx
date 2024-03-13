@@ -5,14 +5,14 @@ const http = axios.create({
 })
 
 const AuthService = {
-    async login() {
+    async register() {
         return http.post("/register")
             .then(response => response.data)
             .catch(error => {
                 throw error;
             });
     },
-    async register() {
+    async login() {
         return http.post(`/login`)
             .then(response => response.data)
             .catch(error => {
@@ -25,6 +25,18 @@ const AuthService = {
             .catch(error => {
                 throw error;
             })
+    },
+    async getUserInfo(token) {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}` // Include the token in the Authorization header
+            }
+        };
+        return http.get("/user", config) // Assuming the endpoint for getting user info is '/user'
+            .then(response => response.data)
+            .catch(error => {
+                throw error;
+            });
     }
 }
 

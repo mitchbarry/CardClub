@@ -9,9 +9,7 @@ const RegisterForm = (props) => {
 
     const navigate = useNavigate()
 
-    const {loginHandler} = props
-
-    const inputs = ["username", "email", "birthDate", "password", "confirmPassword"]
+    const {responseLoginHandler} = props
 
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
@@ -146,7 +144,7 @@ const RegisterForm = (props) => {
                     password,
                     birthDate
                 });
-                loginHandler(response.data);
+                responseLoginHandler(response.data);
                 navigate("/dashboard");
             }
             catch (error) {
@@ -176,10 +174,8 @@ const RegisterForm = (props) => {
                     <li className={styles.flashBoxLi}>
                         {errors.name} {errors.statusCode}
                     </li>
-                    {inputs.map((input, index) => (
-                        errors.validationErrors[input] && (
-                            <li key={index} className={styles.flashBoxLi}>{errors.validationErrors[input]}</li>
-                        )
+                    {errors.validationErrors.map((error, index) => (
+                        <li key={index} className={styles.flashBoxLi}>{error}</li>
                     ))}
                 </ul>
             )}

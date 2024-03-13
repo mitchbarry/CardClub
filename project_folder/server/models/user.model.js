@@ -37,11 +37,11 @@ const UserSchema = new Schema(
         },
         createdLobby: {
             type: Schema.Types.ObjectId, // Reference to the lobby created by the user
-            ref: 'Lobby'
+            ref: Lobby
         },
         joinedLobby: {
             type: Schema.Types.ObjectId, // Reference to the lobby joined by the user
-            ref: 'Lobby'
+            ref: Lobby
         },
     },
     { timestamps: true }

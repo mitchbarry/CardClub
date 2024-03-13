@@ -18,25 +18,43 @@ const MainContent = (props) => {
     const location = useLocation()
     const navigate = useNavigate()
 
-    const {user, token, loginHandler, logoutHandler} = props
+    const {user, token, responseLoginHandler, logoutHandler} = props
 
     const [error, setError] = useState(null); // State to hold error message
 
-    // ERRORS TO DO: 401 Unauthorized, 403 Forbidden?, Timeout page?
+    // ERRORS TO DO: 403 Forbidden
     useEffect(() => {
         setError(null);
         let lowercasePathname = location.pathname.toLowerCase()
-        let paths = ["/error", "/", "/register", "/login", "/account", "/account/edit", "/lobbies", "/lobbies/create", "/lobbies/edit", "/play"]
-        if (!paths.includes(lowercasePathname)) {
-            navigate("/error")
-            const normalizedError404 = {
+        let paths = ["/error", "/", "/register", "/login", "/lobbies", "/play"]
+        let authPaths = ["/account", "/account/edit", "/lobbies/create", "/lobbies/edit"]
+        let normalizedError = {};
+        if (!paths.concat(authPaths)/*.concat(adminPaths)*/.includes(lowercasePathname)) { // 403 forbidden in progress
+            normalizedError = {
                 statusCode: 404, // Set the status code accordingly
                 message: "Resource not found", // Set the error message
                 name: "Not Found", // Set the error name
                 validationErrors: {}
             };
-            setError(normalizedError404)
+            setError(normalizedError)
+            navigate("/error")
         }
+        else if (authPaths.includes(lowercasePathname)) {
+            if (!user._id || token === "") {
+                normalizedError = {
+                    statusCode: 401,
+                    message: "Unauthorized access",
+                    name: "Unauthorized",
+                    validationErrors: {}
+                };
+                setError(normalizedError)
+                navigate("/error")
+            }
+        }
+        /*  403 FORBIDDEN IN PROGRESS
+        else if (adminPaths.includes(lowercasePathname)) {
+        }
+        */
     }, [location.pathname, navigate])
 
     return (
@@ -44,8 +62,8 @@ const MainContent = (props) => {
             <Routes>
                 <Route path="/error" element={<Error error={error} />}/>
                 <Route path="/" element={<Home />}/>
-                <Route path="/register" element={ <RegisterForm loginHandler={loginHandler} /> }/>
-                <Route path="/login" element={ <LoginForm /> }/>
+                <Route path="/register" element={ <RegisterForm responseLoginHandler={responseLoginHandler} /> }/>
+                <Route path="/login" element={ <LoginForm responseLoginHandler={responseLoginHandler} /> }/>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/account" element={ <Account meal={meal} mealUpdater={mealUpdater}/> }/>
                 <Route path="/account/edit" element={ <AccountForm meal={meal} mealUpdater={mealUpdater}/> }/>
@@ -55,7 +73,6 @@ const MainContent = (props) => {
                 <Route path="/play" element={ <Play meal={meal} mealUpdater={mealUpdater}/> }/>
                 <Route path="*" element={<Error />}/>
             </Routes>
-            
         </div>
     )
 }

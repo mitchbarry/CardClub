@@ -12,5 +12,8 @@ router.route("/login") // Login route
     
 router.route("/logout") // Logout route
     .post(authController.logoutUser);
+    
+router.route("/user") // login with a token route
+    .get(authController.getUserInfo);
 
 export default router;
