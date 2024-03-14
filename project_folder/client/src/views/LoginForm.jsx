@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
 import authService from "../services/AuthService";
+import Sidebar from "../components/Sidebar";
 
 import styles from "../css/views/LoginForm.module.css";
 
@@ -83,6 +84,7 @@ const LoginForm = (props) => {
 
     return (
         <div>
+            <Sidebar />
             {(errors.validationErrors && errors.validationErrors.length !== 0 && showNotification) && (
                 <ul className={styles.flashBox}>
                     <button className={styles.closeButtonRed} onClick={() => closeNotification()}>x</button>
@@ -109,6 +111,7 @@ const LoginForm = (props) => {
                     Login
                 </button>
             </form>
+            <Sidebar />
         </div>
     );
 };
