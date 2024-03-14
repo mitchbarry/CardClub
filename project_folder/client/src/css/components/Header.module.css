@@ -1,6 +1,7 @@
 /* ------------------------------------------------------------------------------------ div items > */
 .flexBox {
     display: flex;
+    text-decoration: none;
 }
 .flexBoxSpaceBetween {
     width: 100%;

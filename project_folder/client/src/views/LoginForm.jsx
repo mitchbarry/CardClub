@@ -83,7 +83,7 @@ const LoginForm = (props) => {
     }
 
     return (
-        <div>
+        <div className={styles.flexBox}>
             <Sidebar />
             {(errors.validationErrors && errors.validationErrors.length !== 0 && showNotification) && (
                 <ul className={styles.flashBox}>

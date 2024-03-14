@@ -52,6 +52,9 @@ const MainContent = (props) => {
                 navigate("/error")
             }
         }
+        else if ((lowercasePathname === "/login" || lowercasePathname === "/register") && token !== "") {
+            navigate("/dashboard")
+        }
         /*  403 FORBIDDEN IN PROGRESS
         else if (adminPaths.includes(lowercasePathname)) {
         }

@@ -1,4 +1,5 @@
 import { useState,useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 
 import AuthService from "../services/AuthService";
@@ -10,6 +11,9 @@ import Footer from "../components/Footer";
 import styles from "../css/components/Container.module.css";
 
 const Container = () => {
+
+    const location = useLocation()
+    const navigate = useNavigate()
 
     const [user, setUser] = useState({}); // State to store user information
     const [token, setToken] = useState(""); // State to store authentication token
@@ -32,11 +36,16 @@ const Container = () => {
     };
 
     const logoutHandler = async () => { // Function to handle user logout
+        let authPaths = ["/account", "/account/edit", "/lobbies/create", "/lobbies/edit"]
+        let lowercasePathname = location.pathname.toLowerCase()
         try {
             await AuthService.logout(/*token*/); // token may be passed through to invalidate it via a blacklist (have not yet implemented)
             setToken(""); // Clear the authentication token from state
             setUser({}); // Clear the user information from state
             Cookies.remove('token');
+            if (authPaths.includes(lowercasePathname)) {
+                navigate("/");
+            }
         }
         catch (error) {
             console.error("Logout failed:", error);
@@ -52,7 +61,7 @@ const Container = () => {
 
     return (
         <div className={styles.container}>
-            <Header user={user} logoutHandler={logoutHandler} />
+            <Header token={token} user={user} logoutHandler={logoutHandler} />
             <MainContent user={user} token={token} responseLoginHandler={responseLoginHandler}/>
             <Footer />
         </div>

@@ -20,18 +20,11 @@ const RegisterForm = (props) => {
     const [errors, setErrors] = useState([])
     const [showNotification, setShowNotification] = useState(false)
     const [formErrors, setFormErrors] = useState({
-        username: "Username is required!",
-        email: "Email is required!",
-        birthDate: "Birthday is required!",
-        password: "Password is required!",
-        confirmPassword: "Confirm password is required!"
-    })
-    const [initialRender, setInitialRender] = useState({
-        username: true,
-        email: true,
-        birthDate: true,
-        password: true,
-        confirmPassword: true
+        username: "",
+        email: "",
+        birthDate: "",
+        password: "",
+        confirmPassword: ""
     })
 
     const inputHandler = (e) => {
@@ -51,6 +44,7 @@ const RegisterForm = (props) => {
         }
     };
 
+    /*
     const usernameHandler = (e) => {
         setUsername(e.target.value)
         setInitialRender({...initialRender, username: false})
@@ -69,70 +63,42 @@ const RegisterForm = (props) => {
         }
         setFormErrors({...formErrors, name: errorMsg})
     }
+    */
+
+    const usernameHandler = (e) => {
+        setUsername(e.target.value.trim())
+        setFormErrors({...formErrors, username: ""});
+    }
 
     const emailHandler = (e) => {
-        setEmail(e.target.value)
-        setInitialRender({...initialRender, email: false})
-        const value = e.target.value.trim()
-        let errorMsg = ""
-        if (value) {
-            if (value.length < 6) {
-                errorMsg = "Email must be at least 6 characters long!"
-            }
-            else if (value.length > 25) {
-                errorMsg = "Email must be less than 255 characters long"
-            }
-        }
-        else {
-            errorMsg = "Email is required!"
-        }
-        setFormErrors({...formErrors, email: errorMsg})
+        setEmail(e.target.value.trim())
+        setFormErrors({...formErrors, email: ""});
     }
 
     const birthDateHandler = (e) => {
-        setBirthDate(e.target.value)
-        setInitialRender({...initialRender, birthDate: false})
-        let errorMsg = ""
-        let value = e.target.value
-        if (!value) {
-            errorMsg = "Birthday is required!"
-        }
-        setFormErrors({...formErrors, birthDate: errorMsg})
+        setBirthDate(e.target.value.trim())
+        setFormErrors({...formErrors, birthDate: ""});
     }
 
     const passwordHandler = (e) => {
-        setPassword(e.target.value)
-        setInitialRender({...initialRender, password: false})
-        const value = e.target.value.trim()
-        let errorMsg = ""
-        if (value) {
-            if (value.length < 6) {
-                errorMsg = "Password must be at least 6 characters long!"
-            }
-            else if (value.length > 255) {
-                errorMsg = "Password must be less than 255 characters long"
-            }
-        }
-        else {
-            errorMsg = "Password is required!"
-        }
-        setFormErrors({...formErrors, name: errorMsg})
+        const newValue = e.target.value.trim();
+        setPassword(newValue);
+        checkConfirmPassword(newValue, confirmPassword); // Pass the new value
+        setFormErrors({...formErrors, password: ""});
     }
-
+    
     const confirmPasswordHandler = (e) => {
-        setConfirmPassword(e.target.value)
-        setInitialRender({...initialRender, confirmPassword: false})
-        const value = e.target.value.trim()
-        let errorMsg = ""
-        if (value) {
-            if (value !== password) {
-                errorMsg = "Passwords must match!"
-            }
+        const newValue = e.target.value.trim();
+        setConfirmPassword(newValue);
+        checkConfirmPassword(password, newValue); // Pass the new value
+    }
+    
+    const checkConfirmPassword = (newPassword, newConfirmPassword) => {
+        let errorMsg = "";
+        if (newConfirmPassword !== "" && newConfirmPassword !== newPassword) {
+            errorMsg = "Passwords must match!";
         }
-        else {
-            errorMsg = "Confirm password is required!"
-        }
-        setFormErrors({...formErrors, confirmPassword: errorMsg})
+        setFormErrors({...formErrors, confirmPassword: errorMsg});
     }
 
     const submitHandler = async (e) => {
@@ -168,7 +134,7 @@ const RegisterForm = (props) => {
     }
 
     return (
-        <div>
+        <div className={styles.flexBox}>
             <Sidebar />
             {(errors.validationErrors && errors.validationErrors.length !== 0 && showNotification) && (
                 <ul className={styles.flashBox}>
@@ -183,28 +149,28 @@ const RegisterForm = (props) => {
             )}
             <form className={styles.flexForm} onSubmit={submitHandler}>
                 <label htmlFor="username" className={styles.whiteLabel}>Username:</label>
-                <input className={formErrors.username && !initialRender.username ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="username" name="username" value={username} onChange={(e) => inputHandler(e)}></input>
-                {formErrors.username && !initialRender.username && (
+                <input className={formErrors.username ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="username" name="username" value={username} onChange={(e) => inputHandler(e)}></input>
+                {formErrors.username && (
                     <p className={styles.paragraphError}>{formErrors.username}</p>
                 )}
                 <label htmlFor="email" className={styles.whiteLabel}>Email:</label>
-                <input className={formErrors.email && !initialRender.email ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="email" name="email" value={email} onChange={(e) => inputHandler(e)}></input>
-                {formErrors.email && !initialRender.email && (
+                <input className={formErrors.email ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="email" name="email" value={email} onChange={(e) => inputHandler(e)}></input>
+                {formErrors.email && (
                     <p className={styles.paragraphError}>{formErrors.email}</p>
                 )}
                 <label htmlFor="birthDate" className={styles.whiteLabel}>Birthday:</label>
-                <input className={formErrors.birthDate && !initialRender.birthDate ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="date" id="birthDate" name="birthDate" value={birthDate} onChange={(e) => inputHandler(e)}></input>
-                {formErrors.birthDate && !initialRender.birthDate && (
+                <input className={formErrors.birthDate ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="date" id="birthDate" name="birthDate" value={birthDate} onChange={(e) => inputHandler(e)}></input>
+                {formErrors.birthDate && (
                     <p className={styles.paragraphError}>{formErrors.birthDate}</p>
                 )}
                 <label htmlFor="password" className={styles.whiteLabel}>Password:</label>
-                <input className={formErrors.password && !initialRender.password ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="password" name="password" value={password} onChange={(e) => inputHandler(e)}></input>
-                {formErrors.password && !initialRender.password && (
+                <input className={formErrors.password ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="password" name="password" value={password} onChange={(e) => inputHandler(e)}></input>
+                {formErrors.password && (
                     <p className={styles.paragraphError}>{formErrors.password}</p>
                 )}
                 <label htmlFor="confirmPassword" className={styles.whiteLabel}>Confirm Password:</label>
-                <input className={formErrors.confirmPassword && !initialRender.confirmPassword ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={(e) => inputHandler(e)}></input>
-                {formErrors.confirmPassword && !initialRender.confirmPassword && (
+                <input className={formErrors.confirmPassword ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={(e) => inputHandler(e)}></input>
+                {formErrors.confirmPassword && (
                     <p className={styles.paragraphError}>{formErrors.confirmPassword}</p>
                 )}
                 <button className={validateForm() ? styles.blueButton : styles.blueButtonDisabled} type="submit" disabled={!validateForm()}>
