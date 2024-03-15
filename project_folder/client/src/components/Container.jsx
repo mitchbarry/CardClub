@@ -17,6 +17,12 @@ const Container = () => {
 
     const [user, setUser] = useState({}); // State to store user information
     const [token, setToken] = useState(""); // State to store authentication token
+    const [error, setError] = useState(null); // State to hold error message
+    const [intendedRoute, setIntendedRoute] = useState("");
+
+    const intendedRouteHandler = (route) => {
+        setIntendedRoute(route);
+    }
 
     const tokenLoginHandler = async (token) => {
         try {
@@ -42,7 +48,7 @@ const Container = () => {
             await AuthService.logout(/*token*/); // token may be passed through to invalidate it via a blacklist (have not yet implemented)
             setToken(""); // Clear the authentication token from state
             setUser({}); // Clear the user information from state
-            Cookies.remove('token');
+            Cookies.remove("token");
             if (authPaths.includes(lowercasePathname)) {
                 navigate("/");
             }
@@ -52,17 +58,55 @@ const Container = () => {
         }
     };
 
-    useEffect(() => {
-        let token = Cookies.get("token");
-        if (token) {
-            tokenLoginHandler(token);
-        }
-    }, [])
+        useEffect(() => {
+            let cookieToken = Cookies.get("token");
+            let lowercasePathname = location.pathname.toLowerCase()
+            let paths = ["/error", "/", "/register", "/login", "/lobbies", "/play"]
+            let authPaths = ["/account", "/account/edit", "/lobbies/create", "/lobbies/edit"]
+            let normalizedError = {};
+            setError(null);
+            if (!paths.concat(authPaths)/*.concat(adminPaths)*/.includes(lowercasePathname)) { // 403 forbidden in progress (if applicable)
+                normalizedError = {
+                    statusCode: 404, // Set the status code accordingly
+                    message: "Resource not found", // Set the error message
+                    name: "Not Found", // Set the error name
+                    validationErrors: {}
+                };
+                setError(normalizedError)
+                navigate("/error");
+            }
+            else if (authPaths.includes(lowercasePathname)) {
+                if (!cookieToken) {
+                    normalizedError = {
+                        statusCode: 401,
+                        message: "Unauthorized access",
+                        name: "Unauthorized",
+                        validationErrors: {}
+                    };
+                    setError(normalizedError)
+                    console.error(normalizedError);
+                    intendedRouteHandler(lowercasePathname);
+                    navigate("/login");
+                }
+                else {
+                    if (!token) {
+                        tokenLoginHandler(cookieToken);
+                    }
+                }
+            }
+            else if ((lowercasePathname === "/login" || lowercasePathname === "/register") && token) {
+                navigate("/dashboard");
+            }
+            /*  403 FORBIDDEN IN PROGRESS
+            else if (adminPaths.includes(lowercasePathname)) {
+            }
+            */
+        }, [location.pathname, navigate])
 
     return (
         <div className={styles.container}>
             <Header token={token} user={user} logoutHandler={logoutHandler} />
-            <MainContent user={user} token={token} responseLoginHandler={responseLoginHandler}/>
+            <MainContent user={user} token={token} responseLoginHandler={responseLoginHandler} error ={error} intendedRoute={intendedRoute} intendedRouteHandler={intendedRouteHandler} />
             <Footer />
         </div>
     )

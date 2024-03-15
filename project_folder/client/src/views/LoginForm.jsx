@@ -10,7 +10,7 @@ const LoginForm = (props) => {
 
     const navigate = useNavigate()
 
-    const {responseLoginHandler} = props
+    const {responseLoginHandler, intendedRoute, intendedRouteHandler} = props
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -66,7 +66,13 @@ const LoginForm = (props) => {
                 password
             });
             responseLoginHandler(response.data);
-            navigate("/dashboard");
+            if (intendedRoute) { // This bit might need testing due to nature of state !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                navigate(intendedRoute);
+                intendedRouteHandler("");
+            }
+            else {
+                navigate("/dashboard");
+            }
         }
         catch (error) {
             if (error.response) { // Handle login error
