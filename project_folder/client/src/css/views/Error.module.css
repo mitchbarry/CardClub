@@ -1,4 +1,7 @@
 /* ------------------------------------------------------------------------------------ div items > */
+.flexBox {
+    display: flex;
+}
 .mainItem {
     width: fit-content;
     text-align: center;

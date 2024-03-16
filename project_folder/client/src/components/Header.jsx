@@ -12,7 +12,7 @@ const Header = (props) => {
     return (
         <div className={styles.header}>
             <div className={styles.headerMain}>
-                <Link to="/" className={styles.flexBox}>
+                <Link to={token ? "/dashboard" : "/"} className={styles.flexBox}>
                     <img src={pokerTime} alt="Poker Time Logo" className={styles.logo} />
                     <h1 className={styles.heading1}>
                         <span className={styles.whiteText}>
@@ -20,8 +20,13 @@ const Header = (props) => {
                         </span>
                     </h1>
                 </Link>
-                {token !== "" ? (
+                {token ? (
                     <div className={styles.flexBox}>
+                        {user && user.username && (
+                            <h4>
+                                Logged in as {user.username}
+                            </h4>
+                        )}
                         <Link to="/account" className={styles.yellowButton}>ACCOUNT</Link>
                         <button onClick={logoutHandler} className={styles.redButtonMarginLeft}>LOGOUT</button>
                     </div>

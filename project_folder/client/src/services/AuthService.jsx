@@ -5,15 +5,15 @@ const http = axios.create({
 })
 
 const AuthService = {
-    async register() {
-        return http.post("/register")
+    async register(user) {
+        return http.post("/register", user)
             .then(response => response.data)
             .catch(error => {
                 throw error;
             });
     },
-    async login() {
-        return http.post(`/login`)
+    async login(user) {
+        return http.post(`/login`, user)
             .then(response => response.data)
             .catch(error => {
                 throw error;

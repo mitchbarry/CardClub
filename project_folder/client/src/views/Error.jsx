@@ -6,16 +6,34 @@ import styles from "../css/views/Error.module.css";
 
 const Error = (props) => {
 
-    const {error, token} = props
+    const {errors, token} = props
 
     return (
-        <div>
+        <div className={styles.flexBox}>
             <Sidebar />
             <div className={styles.mainItem}>
-                <h2 className={styles.heading2}>
-                    Error {error.statusCode}: {error.message}
-                </h2>
-                {token === "" ? (
+                {Object.keys(errors).length !== 0 && (
+                    <>
+                        {errors.statusCode && errors.name && (
+                            <h2 className={styles.heading2}>
+                                Error {errors.statusCode}: {errors.name} 
+                            </h2>
+                        )}
+                        {errors.message && (
+                            <li className={styles.flashBoxLi}>
+                                {errors.message}
+                            </li>
+                        )}
+                        {errors.validationErrors && errors.validationErrors.length !== 0 && (
+                            Object.keys(errors.validationErrors).map((key, index) => (
+                                <li key={index} className={styles.flashBoxLi}>
+                                    {errors.validationErrors[key]}
+                                </li>
+                            ))
+                        )}
+                    </>
+                )}
+                {token ? (
                     <Link to="/home" className={styles.blueButton}>Home</Link>
                 ) : (
                     <Link to="/dashboard" className={styles.blueButton}>Dashboard</Link>

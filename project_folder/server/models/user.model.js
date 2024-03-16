@@ -4,36 +4,49 @@ import Lobby from "./lobby.model.js";
 
 const UserSchema = new Schema(
     {
-        userName: {
+        username: {
             type: String,
             required: [true, "Username is required!"],
             minlength: [4, "Username must be at least 4 characters long!"],
-            maxlength: [25, "Username must be less than 25 characters long"]
+            maxlength: [25, "Username must be less than 25 characters long!"]
         },
         email: {
             type: String,
             required: [true, "Email is required!"],
             minlength: [6, "Email must be at least 6 characters long!"],
-            maxlength: [255, "Email must be less than 255 characters long"],
-            match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, "Invalid email format"]
+            maxlength: [255, "Email must be less than 255 characters long!"],
+            match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, "Please enter a valid email!"]
         },
         password: {
             type: String,
             required: [true, "Password is required!"],
             minlength: [6, "Password must be at least 6 characters long!"],
-            maxlength: [255, "Password must be less than 255 characters long"]
+            maxlength: [255, "Password must be less than 255 characters long!"]
         },
         birthDate: {
             type: Date,
             required: [true, "Birthday is required!"],
-            validate: {
-                validator: function(value) {
-                    const today = new Date(); // Check if the user is at least 18 years old
-                    const age = today.getFullYear() - value.getFullYear();
-                    return age >= 18;
+            validate: [
+                {
+                    validator: function(value) {
+                        const today = new Date();
+                        const userDate = new Date(value);
+                        const yesterday = new Date(today);
+                        yesterday.setDate(today.getDate() - 1); // Set the date to yesterday
+                        return userDate.getTime() < yesterday.getTime();
+                    },
+                    message: "Please enter a valid birthday!"
                 },
-                message: "You must be at least 18 years old!"
-            }
+                {
+                    validator: function(value) {
+                        const today = new Date();
+                        const userDate = new Date(value);
+                        const age = today.getFullYear() - userDate.getFullYear(); // Calculate age
+                        return age >= 18; // Check if the user is at least 18 years old
+                    },
+                    message: "You must be at least 18 years old!"
+                }
+            ]
         },
         createdLobby: {
             type: Schema.Types.ObjectId, // Reference to the lobby created by the user

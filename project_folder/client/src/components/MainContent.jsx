@@ -16,12 +16,12 @@ import styles from "../css/components/MainContent.module.css";
 
 const MainContent = (props) => {
 
-    const {user, token, responseLoginHandler, error, intendedRoute} = props
+    const {user, token, responseLoginHandler, errors, intendedRoute, intendedRouteHandler} = props
 
     return (
         <div className={styles.mainContent}>
             <Routes>
-                <Route path="/error" element={<Error error={error} token={token} />}/>
+                <Route path="/error" element={<Error errors={errors} token={token} />}/>
                 <Route path="/" element={<Home />}/>
                 <Route path="/register" element={ <RegisterForm responseLoginHandler={responseLoginHandler} intendedRoute={intendedRoute} intendedRouteHandler={intendedRouteHandler} /> }/>
                 <Route path="/login" element={ <LoginForm responseLoginHandler={responseLoginHandler} intendedRoute={intendedRoute} intendedRouteHandler={intendedRouteHandler} /> }/>
@@ -32,7 +32,7 @@ const MainContent = (props) => {
                 <Route path="/lobbies/create" element={ <LobbyForm /> }/>
                 <Route path="/lobbies/edit" element={ <LobbyForm /> }/>
                 <Route path="/play" element={ <Play /> }/>
-                <Route path="*" element={<Error error={error} token={token} />} />
+                <Route path="*" element={<Error errors={errors} token={token} />} />
             </Routes>
         </div>
     )

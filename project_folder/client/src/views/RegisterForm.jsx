@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { isValidElement, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import authService from "../services/AuthService";
@@ -17,7 +17,7 @@ const RegisterForm = (props) => {
     const [birthDate, setBirthDate] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
-    const [errors, setErrors] = useState([])
+    const [errors, setErrors] = useState({})
     const [showNotification, setShowNotification] = useState(false)
     const [formErrors, setFormErrors] = useState({
         username: "",
@@ -26,6 +26,7 @@ const RegisterForm = (props) => {
         password: "",
         confirmPassword: ""
     })
+    const [isValidForm, setIsValidForm] = useState(true);
 
     const inputHandler = (e) => {
         switch(e.target.id) {
@@ -44,145 +45,301 @@ const RegisterForm = (props) => {
         }
     };
 
-    /*
     const usernameHandler = (e) => {
-        setUsername(e.target.value)
-        setInitialRender({...initialRender, username: false})
-        const value = e.target.value.trim()
-        let errorMsg = ""
-        if (value) {
-            if (value.length < 4) {
-                errorMsg = "Username must be at least 4 characters long!"
+        const value = e.target.value.trim();
+        setFormErrors((prevErrors) => {
+            switch (prevErrors.username) {
+                case "Username is required!":
+                    if (value.length > 0) {
+                        return {...prevErrors, username: ""};
+                    }
+                    break;
+                case "Username must be at least 4 characters long!":
+                    if (value.length > 4) {
+                        return {...prevErrors, username: ""};
+                    }
+                    break;
+                case "Username must be less than 25 characters long!":
+                    if (value.length < 25) {
+                        return {...prevErrors, username: ""};
+                    }
+                    break;
+                default:
+                    return prevErrors;
             }
-            else if (value.length > 25) {
-                errorMsg = "Username must be less than 25 characters long"
-            }
-        }
-        else {
-            errorMsg = "Username is required!"
-        }
-        setFormErrors({...formErrors, name: errorMsg})
-    }
-    */
-
-    const usernameHandler = (e) => {
-        setUsername(e.target.value.trim())
-        setFormErrors({...formErrors, username: ""});
+        })
+        setUsername(value)
     }
 
     const emailHandler = (e) => {
-        setEmail(e.target.value.trim())
-        setFormErrors({...formErrors, email: ""});
+        const value = e.target.value.trim();
+        setFormErrors((prevErrors) => {
+            switch (prevErrors.email) {
+                case "Email is required!":
+                    if (value.length > 0) {
+                        return{...prevErrors, email: ""};
+                    }
+                    break;
+                case "Email must be at least 6 characters long!":
+                    if (value.length > 6) {
+                        return{...prevErrors, email: ""};
+                    }
+                    break;
+                case "Email must be less than 255 characters long!":
+                    if (value.length < 255) {
+                        return{...prevErrors, email: ""};
+                    }
+                    break;
+                case "Please enter a valid email!":
+                    if (/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(value)) {
+                        return{...prevErrors, email: ""};
+                    }
+                    break;
+                default:
+                    return prevErrors;
+            }
+        })
+        setEmail(e.target.value.trim());
     }
 
     const birthDateHandler = (e) => {
-        setBirthDate(e.target.value.trim())
-        setFormErrors({...formErrors, birthDate: ""});
+        const value = e.target.value.trim();
+        const today = new Date();
+        const userDate = new Date(value);
+        setFormErrors((prevErrors) => {
+            switch (prevErrors.birthDate) {
+                case "Birthday is required!":
+                    if (value.length > 0) {
+                        return{...prevErrors, birthDate: ""};
+                    }
+                    break;
+                case "Please enter a valid birthday!":
+                    const yesterday = new Date(today);
+                    yesterday.setDate(today.getDate() - 1); // Set the date to yesterday
+                    if (userDate.getTime() < yesterday.getTime()) {
+                        return{...prevErrors, birthDate: ""};
+                    }
+                    break;
+                case "You must be at least 18 years old!":
+                    const age = today.getFullYear() - userDate.getFullYear(); // Calculate age
+                    if (age >= 18) { // Check if the user is at least 18 years old
+                        return{...prevErrors, birthDate: ""};
+                    }
+                    break;
+                default:
+                    return prevErrors;
+            }
+        })
+        setBirthDate(value);
     }
 
     const passwordHandler = (e) => {
-        const newValue = e.target.value.trim();
-        setPassword(newValue);
-        checkConfirmPassword(newValue, confirmPassword); // Pass the new value
-        setFormErrors({...formErrors, password: ""});
+        const value = e.target.value.trim();
+        setFormErrors((prevErrors) => {
+            switch (prevErrors.password) {
+                case "Password is required!":
+                    if (value.length > 0) {
+                        return {...prevErrors, password: ""};
+                    }
+                    break;
+                case "Password must be at least 6 characters long!":
+                    if (value.length > 6) {
+                        return {...prevErrors, password: ""};
+                    }
+                    break;
+                case "Password must be less than 255 characters long!":
+                    if (value.length > 255) {
+                        return {...prevErrors, password: ""};
+                    }
+                // Optional regex Case here to verify the user password has certain characters or a certain uppercase characters
+                default:
+                    return prevErrors;
+            }
+        })
+        setPassword(value);
+        checkPasswordMatch(value, confirmPassword); // Pass the new value
     }
     
     const confirmPasswordHandler = (e) => {
-        const newValue = e.target.value.trim();
-        setConfirmPassword(newValue);
-        checkConfirmPassword(password, newValue); // Pass the new value
+        const value = e.target.value.trim();
+        setConfirmPassword(value);
+        checkPasswordMatch(password, value); // Pass the new value
     }
     
-    const checkConfirmPassword = (newPassword, newConfirmPassword) => {
+    const checkPasswordMatch = (newPassword, newConfirmPassword) => {
         let errorMsg = "";
-        if (newConfirmPassword !== "" && newConfirmPassword !== newPassword) {
+        if (newConfirmPassword !== newPassword) {
             errorMsg = "Passwords must match!";
         }
-        setFormErrors({...formErrors, confirmPassword: errorMsg});
+        setFormErrors(prevErrors => ({...prevErrors, confirmPassword: errorMsg}));
     }
 
-    const submitHandler = async (e) => {
+    const submitHandler = (e) => {
         e.preventDefault();
-        if (validateForm()) {
-            try {
-                const response = await authService.register({
-                    username,
-                    email,
-                    password,
-                    birthDate
-                });
-                responseLoginHandler(response.data);
-                if (intendedRoute) { // This bit might need testing due to nature of state !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    navigate(intendedRoute);
-                    intendedRouteHandler("");
-                }
-                else {
-                    navigate("/dashboard");
-                }
+        checkForm();
+    };
+
+    const checkForm = () => {
+        const today = new Date();
+        const userDate = new Date(birthDate);
+        const newFormErrors = {...formErrors}
+        if (!username) { // checks username on submit
+            newFormErrors.username = "Username is required!"
+        }
+        else if (username.length < 4) {
+            newFormErrors.username = "Username must be at least 4 characters long!"
+        }
+        else if (username.length > 25) {
+            newFormErrors.username = "Username must be less than 25 characters long!"
+        }
+        if (!email) { // checks email on submit
+            newFormErrors.email = "Email is required!"
+        }
+        else if (email.length < 6) {
+            newFormErrors.email = "Email must be at least 6 characters long!"
+        }
+        else if (email.length > 255) {
+            newFormErrors.email = "Email must be less than 255 characters long!"
+        }
+        else if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
+            newFormErrors.email = "Please enter a valid email!"
+        }
+        if (!birthDate) { // checks birthDate on submit
+            newFormErrors.birthDate = "Birthday is required!"
+        }
+        else {
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+            if (userDate.getTime() > yesterday.getTime()) {
+                newFormErrors.birthDate = "Please enter a valid birthday!"
             }
-            catch (error) {
-                if (error.response) { // Handle registration error
-                    setErrors([...errors, error.response.data.message]); // If server returns an error response
-                } else {
-                    console.error("Registration failed:", error); // If there's a network error or other unexpected error
-                    setErrors([...errors, "An unexpected error occurred. Please try again later."]);
+            else {
+                const age = today.getFullYear() - userDate.getFullYear(); // Calculate age
+                if (age <= 18) {
+                    newFormErrors.birthDate = "You must be at least 18 years old!"
                 }
             }
         }
-    };
+        if (!password) { // checks password on submit
+            newFormErrors.password = "Password is required!"
+        }
+        else if (password.length < 6) {
+            newFormErrors.password = "Password must be at least 6 characters long!"
+        }
+        else if (password.length > 255) {
+            newFormErrors.password = "Password must be less than 255 characters long!"
+        }
+        if (Object.keys(newFormErrors).every(key => newFormErrors[key] === "")) {
+            sendRequest();
+        }
+        else {
+            setFormErrors(prevErrors => ({...prevErrors, ...newFormErrors}));
+        }
+    }
 
-    const validateForm = () => {
-        return Object.values(formErrors).every(key => formErrors[key] === "")
+    const sendRequest = async () => {
+        try {
+            const response = await authService.register({
+                username,
+                email,
+                birthDate,
+                password
+            });
+            responseLoginHandler(response);
+        }
+        catch (error) {
+            console.log(error)
+            if (error.response) { // Handle registration error if server returns an error response
+                setErrors(error.response.data)
+            }
+            else if (error.request) { // Handle network errors
+                const normalizedError = {
+                    statusCode: 500, // Assuming a generic status code for network errors
+                    message: "A network error occurred. Please check your internet connection and try again.",
+                    name: "NetworkError",
+                    validationErrors: {}
+                };
+                setErrors(normalizedError)
+            }
+            else { // Handle unexpected errors
+                const normalizedError = {
+                    statusCode: 500, // Assuming a generic status code for unexpected errors
+                    message: "An unexpected error occurred. Please try again later.",
+                    name: "UnexpectedError",
+                    validationErrors: {}
+                };
+                setErrors(normalizedError)
+            }
+            setShowNotification(true);
+        }
     }
 
     const closeNotification = () => {
         setShowNotification(false);
     }
 
+    useEffect(() => {
+        const areErrorsResolved = Object.keys(formErrors).every(key => formErrors[key] === "")
+        setIsValidForm(areErrorsResolved);
+    }, [formErrors, username, email, birthDate, password, confirmPassword])
+
     return (
         <div className={styles.flexBox}>
             <Sidebar />
-            {(errors.validationErrors && errors.validationErrors.length !== 0 && showNotification) && (
-                <ul className={styles.flashBox}>
-                    <button className={styles.closeButtonRed} onClick={() => closeNotification()}>x</button>
-                    <li className={styles.flashBoxLi}>
-                        {errors.name} {errors.statusCode}
-                    </li>
-                    {errors.validationErrors.map((error, index) => (
-                        <li key={index} className={styles.flashBoxLi}>{error}</li>
-                    ))}
-                </ul>
-            )}
-            <form className={styles.flexForm} onSubmit={submitHandler}>
-                <label htmlFor="username" className={styles.whiteLabel}>Username:</label>
-                <input className={formErrors.username ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="username" name="username" value={username} onChange={(e) => inputHandler(e)}></input>
-                {formErrors.username && (
-                    <p className={styles.paragraphError}>{formErrors.username}</p>
+            <div>
+                {(Object.keys(errors).length !== 0  && showNotification) && (
+                    <ul className={styles.flashBox}>
+                        <button className={styles.closeButtonRed} onClick={() => closeNotification()}>x</button>
+                        {errors.statusCode && errors.name && (
+                            <li className={styles.flashBoxLi}>
+                                Error {errors.statusCode}: {errors.name} 
+                            </li>
+                        )}
+                        {errors.message && (
+                            <li className={styles.flashBoxLi}>
+                                {errors.message}
+                            </li>
+                        )}
+                        {errors.validationErrors && errors.validationErrors.length !== 0 && (
+                            Object.keys(errors.validationErrors).map((key, index) => (
+                                <li key={index} className={styles.flashBoxLi}>
+                                    {errors.validationErrors[key]}
+                                </li>
+                            ))
+                        )}
+                    </ul>
                 )}
-                <label htmlFor="email" className={styles.whiteLabel}>Email:</label>
-                <input className={formErrors.email ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="email" name="email" value={email} onChange={(e) => inputHandler(e)}></input>
-                {formErrors.email && (
-                    <p className={styles.paragraphError}>{formErrors.email}</p>
-                )}
-                <label htmlFor="birthDate" className={styles.whiteLabel}>Birthday:</label>
-                <input className={formErrors.birthDate ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="date" id="birthDate" name="birthDate" value={birthDate} onChange={(e) => inputHandler(e)}></input>
-                {formErrors.birthDate && (
-                    <p className={styles.paragraphError}>{formErrors.birthDate}</p>
-                )}
-                <label htmlFor="password" className={styles.whiteLabel}>Password:</label>
-                <input className={formErrors.password ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="password" name="password" value={password} onChange={(e) => inputHandler(e)}></input>
-                {formErrors.password && (
-                    <p className={styles.paragraphError}>{formErrors.password}</p>
-                )}
-                <label htmlFor="confirmPassword" className={styles.whiteLabel}>Confirm Password:</label>
-                <input className={formErrors.confirmPassword ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={(e) => inputHandler(e)}></input>
-                {formErrors.confirmPassword && (
-                    <p className={styles.paragraphError}>{formErrors.confirmPassword}</p>
-                )}
-                <button className={validateForm() ? styles.blueButton : styles.blueButtonDisabled} type="submit" disabled={!validateForm()}>
-                    Register
-                </button>
-            </form>
+                <form className={styles.flexForm} onSubmit={submitHandler}>
+                    <label htmlFor="username" className={styles.whiteLabel}>Username:</label>
+                    <input className={formErrors.username ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="username" name="username" value={username} onChange={(e) => inputHandler(e)}></input>
+                    {formErrors.username && (
+                        <p className={styles.paragraphError}>{formErrors.username}</p>
+                    )}
+                    <label htmlFor="email" className={styles.whiteLabel}>Email:</label>
+                    <input className={formErrors.email ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="text" id="email" name="email" value={email} onChange={(e) => inputHandler(e)}></input>
+                    {formErrors.email && (
+                        <p className={styles.paragraphError}>{formErrors.email}</p>
+                    )}
+                    <label htmlFor="birthDate" className={styles.whiteLabel}>Birthday:</label>
+                    <input className={formErrors.birthDate ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="date" id="birthDate" name="birthDate" value={birthDate} onChange={(e) => inputHandler(e)}></input>
+                    {formErrors.birthDate && (
+                        <p className={styles.paragraphError}>{formErrors.birthDate}</p>
+                    )}
+                    <label htmlFor="password" className={styles.whiteLabel}>Password:</label>
+                    <input className={formErrors.password ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="password" id="password" name="password" value={password} onChange={(e) => inputHandler(e)}></input>
+                    {formErrors.password && (
+                        <p className={styles.paragraphError}>{formErrors.password}</p>
+                    )}
+                    <label htmlFor="confirmPassword" className={styles.whiteLabel}>Confirm Password:</label>
+                    <input className={formErrors.confirmPassword ? styles.textfieldRedOutline : styles.textfieldMarginBottom} type="password" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={(e) => inputHandler(e)}></input>
+                    {formErrors.confirmPassword && (
+                        <p className={styles.paragraphError}>{formErrors.confirmPassword}</p>
+                    )}
+                    <button className={isValidForm ? styles.blueButton : styles.blueButtonDisabled} type="submit" disabled={!isValidForm}>
+                        Register
+                    </button>
+                </form>
+            </div>
             <Sidebar />
         </div>
     );
