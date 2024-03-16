@@ -46,7 +46,7 @@ const Container = () => {
     const responseLoginHandler = (response) => {
         Cookies.set("token", response.token, { expires: 7 }); // Set the token as a browser cookie with an expiry time (1 week)
         setToken(response.token); // Set the token and user information in state
-        setUser(response.newUser);
+        setUser(response.user);
         if (intendedRoute) {
             navigate(intendedRoute);
             setIntendedRoute("");

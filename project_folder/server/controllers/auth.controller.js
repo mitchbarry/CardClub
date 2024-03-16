@@ -29,7 +29,7 @@ const authController = {
                 birthDate
             });
             const token = generateAuthToken(newUser);
-            res.json({ newUser, token });
+            res.json({ user: newUser, token });
         }
         catch (error) {
             next(error);
@@ -38,7 +38,7 @@ const authController = {
     async loginUser(req, res, next) {
         try {
             const { email, password } = req.body;
-            const user = await User.getOneUser({ email });
+            const user = await User.findOne({ email });
             if (!user) {
                 const normalizedError = {
                     statusCode: 401,

@@ -48,17 +48,15 @@ const UserSchema = new Schema(
                 }
             ]
         },
-        createdLobby: {
-            type: Schema.Types.ObjectId, // Reference to the lobby created by the user
-            ref: Lobby
-        },
-        joinedLobby: {
-            type: Schema.Types.ObjectId, // Reference to the lobby joined by the user
-            ref: Lobby
-        },
+        chips: {
+            type: Number,
+            required: true,
+            default: 1000
+        }
     },
     { timestamps: true }
 );
+
 const User = model("User", UserSchema);
 
 export default User;

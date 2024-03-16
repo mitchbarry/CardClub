@@ -12,7 +12,8 @@ const userController = {
     },
     async getOneUser(req, res, next) {
         try {
-            const foundUser = await User.findById(req.params.id);
+            const {_id} = req.body;
+            const foundUser = await User.findById(_id);
             res.json(foundUser);
         }
         catch (error) {
@@ -20,12 +21,13 @@ const userController = {
         }
     },
     async updateOneUser(req, res, next) {
+        const {_id} = req.body;
         const options = {
             new: true,
             runValidators: true,
         };
         try {
-            const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, options);
+            const updatedUser = await User.findByIdAndUpdate(_id, req.body, options);
             res.json(updatedUser);
         }
         catch (error) {
@@ -33,8 +35,9 @@ const userController = {
         }
     },
     async deleteOneUser(req, res, next) {
+        const {_id} = req.body;
         try {
-            const deletedUser = await User.findByIdAndDelete(req.params.id);
+            const deletedUser = await User.findByIdAndDelete(_id);
             res.json(deletedUser);
         }
         catch (error) {

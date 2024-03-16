@@ -15,30 +15,29 @@ const LobbySchema = new Schema(
             required: false,
             minlength: [4, "Description must be at least 4 characters long!"],
             maxlength: [255, "Description must be less than 255 characters long!"],
+            default: ""
         },
         maxPlayers: {
             type: Number,
             required: [true, "Number of players is required!"],
             min: [2, "Minimum number of players is 2!"],
             max: [10, "Max number of players is 10!"],
-            default: 4
-        },
-        hasPassword: {
-            type: Boolean,
-            default: false
         },
         password: {
             type: String,
-            required: function() {
-                return this.hasPassword; // Only required if hasPassword is true
-            }
+            required: false,
+            default: ""
         },
-        createdBy: {
-            type: Schema.Types.ObjectId, // Reference to the User who created the lobby
-            ref: 'User'
+        creatorId: {
+            type: String, // Reference to the User who created the lobby
+            required: true
+        },
+        gameState: {
+            type: Object,
+            required: true
         },
         players: {
-            type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+            type: [{ type: Schema.Types.ObjectId, ref: User }],
             default: [],
             validate: {
                 validator: function(players) {
@@ -46,6 +45,10 @@ const LobbySchema = new Schema(
                 },
                 message: props => `Cannot exceed ${props.maxPlayers} players in the lobby!`
             }
+        },
+        spectators: {
+            type: [{ type: Schema.Types.ObjectId, ref: User }],
+            default: []
         }
     },
     { timestamps: true }

@@ -1,5 +1,4 @@
-import { isValidElement, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 import authService from "../services/AuthService";
 import Sidebar from "../components/Sidebar";
@@ -8,9 +7,7 @@ import styles from "../css/views/RegisterForm.module.css";
 
 const RegisterForm = (props) => {
 
-    const navigate = useNavigate()
-
-    const {responseLoginHandler, intendedRoute, intendedRouteHandler} = props
+    const {responseLoginHandler} = props
 
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
@@ -46,11 +43,11 @@ const RegisterForm = (props) => {
     };
 
     const usernameHandler = (e) => {
-        const value = e.target.value.trim();
+        const value = e.target.value;
         setFormErrors((prevErrors) => {
             switch (prevErrors.username) {
                 case "Username is required!":
-                    if (value.length > 0) {
+                    if (value) {
                         return {...prevErrors, username: ""};
                     }
                     break;
@@ -72,11 +69,11 @@ const RegisterForm = (props) => {
     }
 
     const emailHandler = (e) => {
-        const value = e.target.value.trim();
+        const value = e.target.value;
         setFormErrors((prevErrors) => {
             switch (prevErrors.email) {
                 case "Email is required!":
-                    if (value.length > 0) {
+                    if (value) {
                         return{...prevErrors, email: ""};
                     }
                     break;
@@ -99,17 +96,17 @@ const RegisterForm = (props) => {
                     return prevErrors;
             }
         })
-        setEmail(e.target.value.trim());
+        setEmail(value);
     }
 
     const birthDateHandler = (e) => {
-        const value = e.target.value.trim();
+        const value = e.target.value;
         const today = new Date();
         const userDate = new Date(value);
         setFormErrors((prevErrors) => {
             switch (prevErrors.birthDate) {
                 case "Birthday is required!":
-                    if (value.length > 0) {
+                    if (value) {
                         return{...prevErrors, birthDate: ""};
                     }
                     break;
@@ -134,11 +131,11 @@ const RegisterForm = (props) => {
     }
 
     const passwordHandler = (e) => {
-        const value = e.target.value.trim();
+        const value = e.target.value;
         setFormErrors((prevErrors) => {
             switch (prevErrors.password) {
                 case "Password is required!":
-                    if (value.length > 0) {
+                    if (value) {
                         return {...prevErrors, password: ""};
                     }
                     break;
@@ -161,7 +158,7 @@ const RegisterForm = (props) => {
     }
     
     const confirmPasswordHandler = (e) => {
-        const value = e.target.value.trim();
+        const value = e.target.value;
         setConfirmPassword(value);
         checkPasswordMatch(password, value); // Pass the new value
     }
@@ -183,28 +180,28 @@ const RegisterForm = (props) => {
         const today = new Date();
         const userDate = new Date(birthDate);
         const newFormErrors = {...formErrors}
-        if (!username) { // checks username on submit
+        if (!username.trim()) { // checks username on submit
             newFormErrors.username = "Username is required!"
         }
-        else if (username.length < 4) {
+        else if (username.trim().length < 4) {
             newFormErrors.username = "Username must be at least 4 characters long!"
         }
-        else if (username.length > 25) {
+        else if (username.trim().length > 25) {
             newFormErrors.username = "Username must be less than 25 characters long!"
         }
-        if (!email) { // checks email on submit
+        if (!email.trim()) { // checks email on submit
             newFormErrors.email = "Email is required!"
         }
-        else if (email.length < 6) {
+        else if (email.trim().length < 6) {
             newFormErrors.email = "Email must be at least 6 characters long!"
         }
-        else if (email.length > 255) {
+        else if (email.trim().length > 255) {
             newFormErrors.email = "Email must be less than 255 characters long!"
         }
         else if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
             newFormErrors.email = "Please enter a valid email!"
         }
-        if (!birthDate) { // checks birthDate on submit
+        if (!birthDate.trim()) { // checks birthDate on submit
             newFormErrors.birthDate = "Birthday is required!"
         }
         else {
@@ -220,13 +217,13 @@ const RegisterForm = (props) => {
                 }
             }
         }
-        if (!password) { // checks password on submit
+        if (!password.trim()) { // checks password on submit
             newFormErrors.password = "Password is required!"
         }
-        else if (password.length < 6) {
+        else if (password.trim().length < 6) {
             newFormErrors.password = "Password must be at least 6 characters long!"
         }
-        else if (password.length > 255) {
+        else if (password.trim().length > 255) {
             newFormErrors.password = "Password must be less than 255 characters long!"
         }
         if (Object.keys(newFormErrors).every(key => newFormErrors[key] === "")) {
@@ -240,10 +237,10 @@ const RegisterForm = (props) => {
     const sendRequest = async () => {
         try {
             const response = await authService.register({
-                username,
-                email,
-                birthDate,
-                password
+                username: username.trim(),
+                email: email.trim(),
+                birthDate: birthDate.trim(),
+                password: password.trim()
             });
             responseLoginHandler(response);
         }
