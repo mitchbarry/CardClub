@@ -19,15 +19,15 @@ const LobbyService = {
                 throw error;
             })
     },
-    async createOneLobby(meal) {
-        return http.post("/lobbies", meal)
+    async createOneLobby(lobby) {
+        return http.post("/lobbies/create", lobby)
             .then(response => response.data)
             .catch(error => {
                 throw error;
             })
     },
-    async updateOneLobby(meal) {
-        return http.put(`/lobbies/${meal._id}`, meal)
+    async updateOneLobby(lobby) {
+        return http.put(`/lobbies/${lobby._id}`, lobby)
             .then(response => response.data)
             .catch(error => {
                 throw error

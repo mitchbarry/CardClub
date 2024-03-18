@@ -6,7 +6,7 @@ import styles from "../css/views/Play.module.css";
 const Play = () => {
 
     return (
-        <div>
+        <div className={styles.flexBox}>
             <Sidebar />
             <Poker />
             <Sidebar />
