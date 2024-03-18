@@ -29,17 +29,8 @@ const LobbySchema = new Schema(
         },
         gameState: {
             type: Object,
-            required: true
-        },
-        players: {
-            type: [{ type: Schema.Types.ObjectId, ref: 'User' }], // Reference to the use objects in the lobby
-            default: [],
-            validate: {
-                validator: function(players) {
-                    return players.length <= this.maxPlayers; // Validate maximum number of players
-                },
-                message: props => `Cannot exceed ${props.maxPlayers} players in the lobby!`
-            }
+            required: true,
+            default: {}
         }
     },
     { timestamps: true }

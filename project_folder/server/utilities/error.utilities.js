@@ -1,4 +1,4 @@
-const cardClubUtilities = {
+const errorUtilities = {
     extractValidationErrors(error) {
         const validationErrors = {}
         if (error.name === "ValidationError") {
@@ -13,4 +13,4 @@ const cardClubUtilities = {
     }
 };
 
-export default cardClubUtilities;
+export default errorUtilities;

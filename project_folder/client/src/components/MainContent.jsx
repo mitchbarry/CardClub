@@ -30,7 +30,7 @@ const MainContent = (props) => {
                 <Route path="/lobbies" element={ <Lobbies /> }/>
                 <Route path="/lobbies/create" element={ <LobbyForm user={user} /> }/>
                 <Route path="/lobbies/edit" element={ <LobbyForm user={user} /> }/>
-                <Route path="/play/:lobbyId" element={ <Play user={user} /> }/>
+                <Route path="/play/:id" element={ <Play user={user} /> }/>
                 <Route path="/play" element={ <Play /> }/>
                 <Route path="*" element={<Error errors={errors} token={token} />} />
             </Routes>

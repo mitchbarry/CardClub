@@ -72,7 +72,7 @@ const Container = () => {
         const lowercasePathname = location.pathname.toLowerCase()
         let normalizedError = {};
         setErrors({});
-        if (!paths.concat(authPaths).includes(lowercasePathname)) { // 403 forbidden in progress (if applicable) (.concat(adminPaths))
+        if (!pathValidator(lowercasePathname)) { // 403 forbidden in progress (if applicable) (.concat(adminPaths))
             console.log(lowercasePathname)
             normalizedError = {
                 statusCode: 404, // Set the status code accordingly
@@ -112,6 +112,22 @@ const Container = () => {
         }
         */
     }, [location])
+
+    const pathValidator = (path) => {
+        if (!paths.concat(authPaths).includes(path)) {
+            const pathSegments = path.split('/');
+            const play = pathSegments[1];
+            const id = pathSegments[2];
+            const isValidId = (id) => {
+                const objectIdPattern = /^[0-9a-fA-F]{24}$/;
+                return objectIdPattern.test(id);
+            }
+            if (!(play === "play" && isValidId(id))) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     return (
         <div className={styles.container}>

@@ -79,9 +79,11 @@ const LobbyForm = (props) => {
                     pot: 0,
                     highestBet: 0,
                     playersFolded: 0,
-                    winners: []
-                },
-                players: []
+                    winners: [],
+                    players: [],
+                    currentlyGoing: 0,
+                    dealerIndex: 0
+                }
             });
             navigate("/lobbies");
         }
