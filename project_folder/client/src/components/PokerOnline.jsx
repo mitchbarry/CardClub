@@ -16,34 +16,55 @@ const Poker = (props) => {
     const {id} = useParams();
 
     const [lobby, setLobby] = useState({});
+    const [stage, setStage] = useState(0);
     const [ctx, setCtx] = useState(null);
     const [socket] = useState(() => io(':8000'));
-    
-    useEffect(() => { // Hook to fetch the lobby object (user object is passed down)
-        const fetchData = async () => {
-            try {
-                const lobbyResponse = await lobbyService.getOneLobby(id); // Fetch the lobby object using findOneLobby
-                setLobby(lobbyResponse); // Update the state with the fetched lobby object
-            }
-            catch (error) {
-                console.error(error);
-            }
-        };
-        fetchData();
-    }, []);
 
     useEffect(() => { // we need to set up all of our event listeners
-        socket.emit('joinLobby', { lobby, user });
         socket.on('gameStateUpdate', (updatedGameState) => {
+            console.log("Lobby updatedGameState recieved")
             setLobby((prevLobby) => ({...prevLobby, gameState: updatedGameState}));
         });
-        // this ensures that the underlying socket will be closed if App is unmounted
-        // this would be more critical if we were creating the socket in a subcomponent
-        return () => {
+        return () => { // this ensures that the underlying socket will be closed if App is unmounted
             socket.emit('leftLobby', { lobby, user }); // Emit leftLobby event
             socket.disconnect();
         }
     }, []);
+
+    useEffect(() => {
+        switch(stage) {
+            case 0:
+                console.log("Stage 0 : Preparing to fetch lobby data")
+                const fetchData = async () => { // fetch the lobby object (user object is passed down)
+                    try {
+                        const lobbyResponse = await lobbyService.getOneLobby(id); // Fetch the lobby object using findOneLobby
+                        setLobby(lobbyResponse); // Update the state with the fetched lobby object
+                    }
+                    catch (error) {
+                        console.error(error);
+                    }
+                    finally {
+                        console.log("lobby data fetched")
+                        setStage(prevStage => (prevStage + 1));
+                    }
+                };
+                fetchData();
+                break;
+            case 1:
+                console.log("Stage 1: ensuring user data has been fetched")
+                if (Object.keys(user).length !== 0) {
+                    console.log("user data fetched")
+                    setStage(prevStage => (prevStage + 1));
+                }
+                break;
+            case 2:
+                console.log("Stage 2: joining lobby on server with lobby and user")
+                socket.emit('joinLobby', { lobby, user });
+                break;
+            default:
+                return;
+        }
+    },[stage, user])
 
     const unabbreviate = (abbreviatedWord) => {
         switch(abbreviatedWord) {
@@ -105,57 +126,59 @@ const Poker = (props) => {
         }
     };
 
+
     const handleCanvasClick = (event) => {
+            /*
         const rect = canvasRef.current.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-        if (gameState.state === 3) {
-            setGameState(prevState => ({ ...prevState, state: 4}));
+        if (lobby.gameState.state === 3) {
+            setlobby.gameState(prevState => ({ ...prevState, state: 4}));
         }
-        if (gameState.state === 15) {
-            setGameState(prevState => ({ ...prevState, state: 16}));
+        if (lobby.gameState.state === 15) {
+            setlobby.gameState(prevState => ({ ...prevState, state: 16}));
         }
         Object.keys(interactables).forEach((key) => {
             const { buttonX, buttonY, buttonWidth, buttonHeight } = interactables[key];
             if (x >= buttonX && x <= buttonX + buttonWidth && y >= buttonY && y <= buttonY + buttonHeight) {
                 switch (key) { // Perform actions based on the clicked element
                     case 'playButton':
-                        if (gameState.state === 0) {
-                            setGameState(prevState => ({ ...prevState, state: 1 }));
+                        if (lobby.gameState.state === 0) {
+                            setlobby.gameState(prevState => ({ ...prevState, state: 1 }));
                         }
                         break;
                     case 'homeButton':
-                        if (gameState.state >= 1) {
-                            setGameState(prevState => ({ ...prevState, state: 0}));
+                        if (lobby.gameState.state >= 1) {
+                            setlobby.gameState(prevState => ({ ...prevState, state: 0}));
                         }
                         break;
                     case 'easyButton':
-                        if (gameState.state === 1) {
-                            setGameState(prevState => ({ ...prevState, difficulty: 0, state: 2 }));
+                        if (lobby.gameState.state === 1) {
+                            setlobby.gameState(prevState => ({ ...prevState, difficulty: 0, state: 2 }));
                         }
                         break;
                     case 'mediumButton':
-                        if (gameState.state === 1) {
-                            setGameState(prevState => ({ ...prevState, difficulty: 1, state: 2 }));
+                        if (lobby.gameState.state === 1) {
+                            setlobby.gameState(prevState => ({ ...prevState, difficulty: 1, state: 2 }));
                         }
                         break;
                     case 'hardButton':
-                        if (gameState.state === 1) {
-                            setGameState(prevState => ({ ...prevState, difficulty: 2, state: 2 }));
+                        if (lobby.gameState.state === 1) {
+                            setlobby.gameState(prevState => ({ ...prevState, difficulty: 2, state: 2 }));
                         }
                         break;
                     case 'foldButton':
-                        if (gameState.state === 7) {
+                        if (lobby.gameState.state === 7) {
                             playerFold();
                         }
                         break;
                     case 'checkButton':
-                        if (gameState.state === 7) {
+                        if (lobby.gameState.state === 7) {
                             playerCheck();
                         }
                         break;
                     case 'raiseButton':
-                        if (gameState.state === 7) {
+                        if (lobby.gameState.state === 7) {
                             playerRaise();
                         }
                         break;
@@ -164,37 +187,38 @@ const Poker = (props) => {
                 }
             }
         })
+        */
     };
 
     const drawElements = () => {
-        if (ctx) {
+        if (ctx && lobby.gameState) {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clear canvas
             ctx.textAlign = 'center'; // Set Base Settings
             ctx.textBaseline = 'middle';
-            if (gameState.state === 0) {
+            if (lobby.gameState.state === 0) {
                 drawPlayButton();
                 return;
             }
-            if (gameState.state >= 1) {
+            if (lobby.gameState.state >= 1) {
                 drawHomeButton();
             }
-            if (gameState.state === 1) {
+            if (lobby.gameState.state === 1) {
                 drawDifficultyButtons();
                 return;
             }
-            if (gameState.state >= 2) { // Conditionally Draw Elements
+            if (lobby.gameState.state >= 2) { // Conditionally Draw Elements
                 drawPlayers();
                 drawPot();
                 drawDeck();
             }
-            if (gameState.river.length !== 0) {
+            if (lobby.gameState.river.length !== 0) {
                 drawRiver();
             }
-            if (gameState.state === 3 || gameState.state === 15) {
+            if (lobby.gameState.state === 3 || lobby.gameState.state === 15) {
                 drawContinue();
                 return;
             }
-            if (gameState.state === 7) {
+            if (lobby.gameState.state === 7) {
                 drawPlayerButtons();
                 return;
             }
@@ -205,15 +229,15 @@ const Poker = (props) => {
         const centerX = ctx.canvas.width / 2;
         const centerY = ctx.canvas.height / 2;
         const radius = centerY / (7/6);
-        const numPlayers = gameState.players.length;
+        const numPlayers = lobby.gameState.players.length;
         const angleIncrement = (Math.PI) / (numPlayers - 1);
         for (let i = 0; i < numPlayers; i++) {
             const angle = [(i + 3) % numPlayers] * angleIncrement;
             const x = centerX + (1.3 * radius) * Math.sin(angle - (Math.PI / 2));
             const y = centerY + radius * Math.cos(angle - (Math.PI / 2));
-            drawPlayer(x, y, numPlayers - (i + 1), gameState.players.findIndex(player => player.dealer));
-            if (gameState.state >= 6) {
-                drawHand(x, y, gameState.players[numPlayers - (i + 1)]);
+            drawPlayer(x, y, numPlayers - (i + 1), lobby.gameState.dealerIndex);
+            if (lobby.gameState.state >= 6) {
+                drawHand(x, y, lobby.gameState.players[numPlayers - (i + 1)]);
             }
         }
     }
@@ -221,12 +245,12 @@ const Poker = (props) => {
     const drawPlayer = (x, y, playerIndex, dealerIndex) => {
         ctx.font = '20px Arial';
         ctx.fillStyle = 'whitesmoke'; // Draw current Bet
-        ctx.fillText('Current Bet: ' + gameState.players[playerIndex].currentBet, x, y - 10);
+        ctx.fillText('Current Bet: ' + lobby.gameState.players[playerIndex].currentBet, x, y - 10);
         ctx.fillStyle = 'whitesmoke'; // Draw chip count
-        ctx.fillText('Chips: ' + gameState.players[playerIndex].chips, x, y - 40);
+        ctx.fillText('Chips: ' + lobby.gameState.players[playerIndex].chips, x, y - 40);
         ctx.fillStyle = 'black'; // Draw player name
-        ctx.fillText(gameState.players[playerIndex].name, x, y - 70);
-        const numPlayers = gameState.players.length; 
+        ctx.fillText(lobby.gameState.players[playerIndex].name, x, y - 70);
+        const numPlayers = lobby.gameState.players.length; 
         const smallBlindIndex = (dealerIndex + 1) % numPlayers;
         const bigBlindIndex = (dealerIndex + 2) % numPlayers;
         if (playerIndex === dealerIndex) { // Draw dealer status
@@ -242,9 +266,9 @@ const Poker = (props) => {
             ctx.fillText('Small Blind', x, y - 100);
         }
         ctx.fillStyle = 'whitesmoke'; // Draw Last Action
-        ctx.fillText(gameState.players[playerIndex].lastAction, x, y - 130);
-        if (gameState.state === 15) {
-            for (const winner of gameState.winners) {
+        ctx.fillText(lobby.gameState.players[playerIndex].lastAction, x, y - 130);
+        if (lobby.gameState.state === 15) {
+            for (const winner of lobby.gameState.winners) {
                 if (playerIndex === winner.playerIndex) {
                     ctx.font = '26px Arial';
                     ctx.fillStyle = 'cyan';
@@ -282,15 +306,15 @@ const Poker = (props) => {
         const centerX = ctx.canvas.width / 2;
         ctx.font = '24px Arial';
         ctx.fillStyle = 'whitesmoke';
-        ctx.fillText('Pot: ' + gameState.pot, centerX, 200);
-        ctx.fillText('Highest Bet: ' + gameState.highestBet, centerX, 170);
+        ctx.fillText('Pot: ' + lobby.gameState.pot, centerX, 200);
+        ctx.fillText('Highest Bet: ' + lobby.gameState.highestBet, centerX, 170);
     }
 
     const drawDeck = () => {
         const centerX = ctx.canvas.width / 2;
         ctx.font = '24px Arial';
         ctx.fillStyle = 'black';
-        ctx.fillText('Deck: ' + gameState.deck.length + " cards", centerX, 230);
+        ctx.fillText('Deck: ' + lobby.gameState.deck.length + " cards", centerX, 230);
     }
 
     const drawDifficultyButtons = () => {
@@ -317,8 +341,8 @@ const Poker = (props) => {
     }
 
     const drawPlayerButtons = () => {
-        const userPlayerIndex = gameState.players.findIndex(player => player.name === "User Player");
-        const player = gameState.players[userPlayerIndex]
+        const userPlayerIndex = lobby.gameState.players.findIndex(player => player.name === "User Player");
+        const player = lobby.gameState.players[userPlayerIndex]
         ctx.font = '20px Arial';
         // Draw the button backgrounds
         // Fold Button
@@ -330,7 +354,7 @@ const Poker = (props) => {
         ctx.fillStyle = 'gray';
         ctx.fillRect(interactables.checkButton.buttonX, interactables.checkButton.buttonY, interactables.checkButton.buttonWidth, interactables.checkButton.buttonHeight);
         ctx.fillStyle = 'whitesmoke';
-        ctx.fillText(player.currentBet === gameState.highestBet ? "Check" : `Call (${gameState.highestBet - player.currentBet})`, interactables.checkButton.buttonX + (interactables.checkButton.buttonWidth / 2), interactables.checkButton.buttonY + (interactables.checkButton.buttonHeight / 2));
+        ctx.fillText(player.currentBet === lobby.gameState.highestBet ? "Check" : `Call (${lobby.gameState.highestBet - player.currentBet})`, interactables.checkButton.buttonX + (interactables.checkButton.buttonWidth / 2), interactables.checkButton.buttonY + (interactables.checkButton.buttonHeight / 2));
         // Raise Button
         ctx.fillStyle = 'gray';
         ctx.fillRect(interactables.raiseButton.buttonX, interactables.raiseButton.buttonY, interactables.raiseButton.buttonWidth, interactables.raiseButton.buttonHeight);
@@ -340,10 +364,10 @@ const Poker = (props) => {
 
     const drawRiver = () => {
         const centerX = ctx.canvas.width / 2;
-        for (let i = 0; i < gameState.river.length; i++) {
+        for (let i = 0; i < lobby.gameState.river.length; i++) {
             ctx.font = '24px Arial';
-            ctx.fillStyle = gameState.river[i].suit === "d" || gameState.river[i].suit === "h" ? 'red' : 'black';
-            ctx.fillText(unabbreviate(gameState.river[i].number) + " of " + unabbreviate(gameState.river[i].suit), centerX - 350 + (i * 175), 450);
+            ctx.fillStyle = lobby.gameState.river[i].suit === "d" || lobby.gameState.river[i].suit === "h" ? 'red' : 'black';
+            ctx.fillText(unabbreviate(lobby.gameState.river[i].number) + " of " + unabbreviate(lobby.gameState.river[i].suit), centerX - 350 + (i * 175), 450);
         }
     }
 
@@ -406,6 +430,7 @@ const Poker = (props) => {
         16 - resolving game -> pot is distributed back to the winner(s), player's hands are reset, river is reset, winning hand is highlighted in the display -> state gets set back to 3
     */
 
+    /*
     useEffect(() => {
         switch(gameState.state) {
             case 0:
@@ -1138,6 +1163,7 @@ const Poker = (props) => {
         setGameState(newGameState);
         console.log("<-- stop phase: resolve game");
     }
+    */
 
     return (
         <canvas className={styles.poker} ref={canvasRef} width={1700} height={1000}>

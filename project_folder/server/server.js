@@ -51,8 +51,10 @@ const server = app.listen(PORT, () =>
 const io = new Server(server, {cors: true});
 
 io.on("connection", socket => {
+    console.log("V New Socket V")
     console.log(socket.id);
-    socket.on('playerJoin', async ({lobby, user}) => {
+    socket.on('joinLobby', async ({lobby, user}) => {
+        console.log("Player Joined: " + user.username)
         lobby.gameState.players.push({
             userId: user._id,
             name: user.username,
@@ -66,28 +68,31 @@ io.on("connection", socket => {
             runValidators: true,
         };
         try {
+            console.log("Attempting to add user to players list")
             const updatedLobby = await Lobby.findByIdAndUpdate(lobby._id, lobby, options);
-            io.to(lobby._id).emit('gameStateUpdate', updatedLobby.gameState); // Emit updated gameState to all players in the lobby
+            io.emit('gameStateUpdate', updatedLobby.gameState); // Emit updated gameState to all players in the lobby
         }
         catch (error) {
             next(error)
         }
     });
-    socket.on('playerLeft', async({lobby, user}) => {
+    socket.on('leftLobby', async({lobby, user}) => {
+        console.log("Player Left: " + user.username)
         const userIndex = lobby.gameState.players.findIndex(player => player.userId === user._id);
         if (userIndex !== -1) {
-            lobby.players.splice(userIndex, 1); // Remove user from players array
+            lobby.gameState.players.splice(userIndex, 1); // Remove user from players array
         }
         try {
             const options = {
                 new: true,
                 runValidators: true,
             };
+            console.log("Attempting to remove user to players list")
             const updatedLobby = await Lobby.findByIdAndUpdate(lobby._id, lobby, options);
-            io.to(lobby._id).emit('gameStateUpdate', updatedLobby.gameState); // Emit updated gameState to all players in the lobby
+            io.emit('gameStateUpdate', updatedLobby.gameState); // Emit updated gameState to all players in the lobby
         }
         catch (error) {
             next(error);
         }
     })
-})
+});
