@@ -64,7 +64,7 @@ const Poker = (props) => {
             default:
                 return;
         }
-    },[stage, user])
+    },[stage, user]);
 
     const unabbreviate = (abbreviatedWord) => {
         switch(abbreviatedWord) {

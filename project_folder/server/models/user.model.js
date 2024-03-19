@@ -1,7 +1,5 @@
 import {model, Schema} from 'mongoose';
 
-import Lobby from "./lobby.model.js";
-
 const UserSchema = new Schema(
     {
         username: {
@@ -52,6 +50,11 @@ const UserSchema = new Schema(
             type: Number,
             required: true,
             default: 1000
+        },
+        lobbyId: {
+            type: String,
+            required: false,
+            default: ""
         }
     },
     { timestamps: true }

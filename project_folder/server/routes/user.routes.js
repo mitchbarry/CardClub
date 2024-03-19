@@ -4,12 +4,12 @@ import userController from "../controllers/user.controller.js";
 
 const router = Router();
 
-router.route("/account")
-    .get(userController.getOneUser)
+router.route("/users")
+    .get(userController.getAllUsers)
 
-router.route("/account/edit")
+router.route("/users/:id")
     .get(userController.getOneUser)
-    .delete(userController.deleteOneUser)
     .put(userController.updateOneUser)
+    .delete(userController.deleteOneUser)
 
 export default router

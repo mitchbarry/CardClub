@@ -21,7 +21,8 @@ const lobbyController = {
     },
     async getOneLobby(req, res, next) {
         try {
-            const foundLobby = await Lobby.findById(req.params.id);
+            const id = req.params.id
+            const foundLobby = await Lobby.findById(id);
             res.json(foundLobby);
         }
         catch (error) {
@@ -34,7 +35,8 @@ const lobbyController = {
             runValidators: true,
         };
         try {
-            const updatedLobby = await Lobby.findByIdAndUpdate(req.params.id, req.body, options);
+            const id = req.params.id
+            const updatedLobby = await Lobby.findByIdAndUpdate(id, req.body, options);
             res.json(updatedLobby);
         }
         catch (error) {
@@ -43,7 +45,8 @@ const lobbyController = {
     },
     async deleteOneLobby(req, res, next) {
         try {
-            const deletedLobby = await Lobby.findByIdAndDelete(req.params.id);
+            const id = req.params.id
+            const deletedLobby = await Lobby.findByIdAndDelete(id);
             res.json(deletedLobby);
         }
         catch (error) {

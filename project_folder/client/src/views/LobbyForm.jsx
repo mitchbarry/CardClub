@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+import userService from "../services/UserService";
 import lobbyService from "../services/LobbyService";
 import Sidebar from "../components/Sidebar";
 
@@ -8,16 +9,39 @@ import styles from "../css/views/LobbyForm.module.css";
 
 const LobbyForm = (props) => {
     
-    const {user} = props
+    const {user} = props;
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     
-    const [name, setName] = useState("")
-    const [description, setDescription] = useState("")
-    const [maxPlayers, setMaxPlayers] = useState(6)
-    const [password, setPassword] = useState("")
-    const [errors, setErrors] = useState({})
-    const [showNotification, setShowNotification] = useState(false)
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [maxPlayers, setMaxPlayers] = useState(6);
+    const [password, setPassword] = useState("");
+    const [lobby, setLobby] = useState({});
+    const [errors, setErrors] = useState({});
+    const [showNotification, setShowNotification] = useState(false);
+
+    useEffect(() => {
+        if (user.lobbyId) {
+            const getLobby = async () => {
+                let lobby;
+                try {
+                    lobby = await lobbyService.getOneLobby(user.lobbyId);
+                }
+                catch (error) {
+                    catchError(error);
+                }
+                finally {
+                    setName(lobby.name);
+                    setDescription(lobby.description);
+                    setMaxPlayers(lobby.maxPlayers);
+                    setPassword(lobby.password);
+                    setLobby(lobby)
+                }
+            }
+            getLobby();
+        }
+    },[user]);
     
     const inputHandler = (e) => {
         switch(e.target.id) {
@@ -65,57 +89,101 @@ const LobbyForm = (props) => {
     };
 
     const sendRequest = async () => {
-        try {
-            await lobbyService.createOneLobby({
-                name: name.trim() ? name : user.username + "'s Lobby",
-                description: description.trim(),
-                maxPlayers: maxPlayers,
-                password: password.trim(),
-                creatorId: user._id,
-                gameState: {
-                    state: 0,
-                    deck: [],
-                    river: [],
-                    pot: 0,
-                    highestBet: 0,
-                    playersFolded: 0,
-                    winners: [],
-                    players: [],
-                    currentlyGoing: 0,
-                    dealerIndex: 0
+        if (user.lobbyId) {
+            if (lobby.name !== name ||
+                lobby.description !== description ||
+                lobby.maxPlayers !== maxPlayers ||
+                lobby.password !== password) {
+                    try {
+                        await lobbyService.updateOneLobby({
+                            _id: user.lobbyId,
+                            name: name.trim() ? name : user.username + "'s Lobby",
+                            description: description.trim(),
+                            maxPlayers: maxPlayers,
+                            password: password.trim()
+                        })
+                    }
+                    catch (error) {
+                        catchError(error);
+                    }
+                    finally {
+                        navigate("/lobbies");
+                    }
                 }
-            });
-            navigate("/lobbies");
+            else {
+                navigate("/lobbies");
+            }
         }
-        catch (error) {
-            console.log(error)
-            if (error.response) { // Handle registration error if server returns an error response
-                setErrors(error.response.data)
+        else {
+            let lobby;
+            try {
+                lobby = await lobbyService.createOneLobby({
+                    name: name.trim() ? name : user.username + "'s Lobby",
+                    description: description.trim(),
+                    maxPlayers: maxPlayers,
+                    password: password.trim(),
+                    creatorId: user._id,
+                    gameState: {
+                        state: 0,
+                        deck: [],
+                        river: [],
+                        pot: 0,
+                        highestBet: 0,
+                        playersFolded: 0,
+                        winners: [],
+                        players: [],
+                        currentlyGoing: 0,
+                        dealerIndex: 0
+                    }
+                });
             }
-            else if (error.request) { // Handle network errors
-                const normalizedError = {
-                    statusCode: 500, // Assuming a generic status code for network errors
-                    message: "A network error occurred. Please check your internet connection and try again.",
-                    name: "NetworkError",
-                    validationErrors: {}
-                };
-                setErrors(normalizedError)
+            catch (error) {
+                catchError(error);
             }
-            else { // Handle unexpected errors
-                const normalizedError = {
-                    statusCode: 500, // Assuming a generic status code for unexpected errors
-                    message: "An unexpected error occurred. Please try again later.",
-                    name: "UnexpectedError",
-                    validationErrors: {}
-                };
-                setErrors(normalizedError)
+            finally {
+                try {
+                    let newUser = user;
+                    newUser.lobbyId = lobby._id
+                    await userService.updateOneUser(newUser)
+                }
+                catch (error) {
+                    catchError(error);
+                }
+                finally {
+                    navigate("/lobbies");
+                }
             }
-            setShowNotification(true);
         }
     }
 
     const closeNotification = () => {
         setShowNotification(false);
+    }
+
+    const catchError = (error) => {
+        console.error(error)
+        if (error.response) { // Handle registration error if server returns an error response
+            setErrors(error.response.data)
+        }
+        else if (error.request) { // Handle network errors
+            const normalizedError = {
+                statusCode: 500, // Assuming a generic status code for network errors
+                message: "A network error occurred. Please check your internet connection and try again.",
+                name: "NetworkError",
+                validationErrors: {}
+            };
+            setErrors(normalizedError)
+        }
+        else { // Handle unexpected errors
+            const normalizedError = {
+                statusCode: 500, // Assuming a generic status code for unexpected errors
+                message: "An unexpected error occurred. Please try again later.",
+                name: "UnexpectedError",
+                validationErrors: {}
+            };
+            setErrors(normalizedError)
+        }
+        setShowNotification(true);
     }
 
     return (
@@ -154,7 +222,7 @@ const LobbyForm = (props) => {
                     <label htmlFor="password" className={styles.whiteLabel}>Password: (optional)</label>
                     <input className={styles.textfieldMarginBottom} type="password" id="password" name="password" value={password} onChange={(e) => inputHandler(e)}></input>
                     <button className={styles.blueButton} type="submit">
-                        Create
+                        {user.lobbyId === "" ? "Create" : "Update"}
                     </button>
                 </form>
             </div>

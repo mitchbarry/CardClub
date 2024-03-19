@@ -53,6 +53,13 @@ const io = new Server(server, {cors: true});
 io.on("connection", socket => {
     console.log("V New Socket V")
     console.log(socket.id);
+    const socketInfo = { // crete an object that holds the involved parties info
+        socketId: socket.id,
+        lobbyId: "",
+        userId: "",
+        connected: false
+    };
+
     socket.on('joinLobby', async ({lobby, user}) => {
         console.log("Player Joined: " + user.username)
         lobby.gameState.players.push({
@@ -63,36 +70,68 @@ io.on("connection", socket => {
             hand: [],
             currentBet: 0
         })
+        socketInfo.userId = user._id;
+        socketInfo.lobbyId = lobby._id;
+        socketInfo.connected = true;
+        let updatedLobby;
         const options = {
             new: true,
             runValidators: true,
         };
         try {
             console.log("Attempting to add user to players list")
-            const updatedLobby = await Lobby.findByIdAndUpdate(lobby._id, lobby, options);
-            io.emit('gameStateUpdate', updatedLobby.gameState); // Emit updated gameState to all players in the lobby
+            updatedLobby = await Lobby.findByIdAndUpdate(lobby._id, lobby, options);
         }
         catch (error) {
             next(error)
         }
-    });
-    socket.on('leftLobby', async({lobby, user}) => {
-        console.log("Player Left: " + user.username)
-        const userIndex = lobby.gameState.players.findIndex(player => player.userId === user._id);
-        if (userIndex !== -1) {
-            lobby.gameState.players.splice(userIndex, 1); // Remove user from players array
+        finally {
+            io.emit('gameStateUpdate', updatedLobby.gameState); // Emit updated gameState to all players in the lobby
         }
+    });
+
+    socket.on('leftLobby', async() => {
+        if (socketInfo.connected) {
+            console.log("Player Left: " + socketInfo.userId)
+            removeUserFromLobby(socketInfo);
+            socketInfo.connected = false;
+        }
+    })
+    
+    socket.on("disconnect", (reason) => {
+        if (socketInfo.connected) {
+            console.log("Socket disconnected: " + reason);
+            removeUserFromLobby(socketInfo);
+            socketInfo.connected = false;
+        }
+    });
+});
+
+const removeUserFromLobby = async (socketInfo) => {
+    let lobby;
+    try {
+        lobby = await Lobby.findById(socketInfo.lobbyId);
+    }
+    catch (error) {
+        next(error)
+    }
+    const userIndex = lobby.gameState.players.findIndex(player => player.userId === socketInfo.userId);
+    if (userIndex !== -1) {
+        lobby.gameState.players.splice(userIndex, 1); // Remove user from players array
         try {
             const options = {
                 new: true,
                 runValidators: true,
             };
-            console.log("Attempting to remove user to players list")
-            const updatedLobby = await Lobby.findByIdAndUpdate(lobby._id, lobby, options);
-            io.emit('gameStateUpdate', updatedLobby.gameState); // Emit updated gameState to all players in the lobby
+            console.log("Attempting to remove user from players list")
+            await Lobby.findByIdAndUpdate(lobby._id, lobby, options);
         }
         catch (error) {
             next(error);
         }
-    })
-});
+        finally {
+            console.log("Successfully removed player from players list")
+            io.emit('gameStateUpdate', lobby.gameState); // Emit updated gameState to all players in the lobby
+        }
+    }
+}

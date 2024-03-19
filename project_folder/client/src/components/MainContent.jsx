@@ -27,7 +27,7 @@ const MainContent = (props) => {
                 <Route path="/dashboard" element={<Dashboard user={user} />} />
                 <Route path="/account" element={ <Account user={user} /> }/>
                 <Route path="/account/edit" element={ <AccountForm user={user} /> }/>
-                <Route path="/lobbies" element={ <Lobbies /> }/>
+                <Route path="/lobbies" element={ <Lobbies user={user}/> }/>
                 <Route path="/lobbies/create" element={ <LobbyForm user={user} /> }/>
                 <Route path="/lobbies/edit" element={ <LobbyForm user={user} /> }/>
                 <Route path="/play/:id" element={ <Play user={user} /> }/>

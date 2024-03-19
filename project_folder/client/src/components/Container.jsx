@@ -20,8 +20,8 @@ const Container = () => {
     const [errors, setErrors] = useState({}); // State to hold error message
     const [intendedRoute, setIntendedRoute] = useState("");
 
-    const paths = ["/error", "/", "/register", "/login", "/lobbies", "/play"]
-    const authPaths = ["/dashboard", "/account", "/account/edit", "/lobbies/create", "/lobbies/edit"]
+    const paths = ["/error", "/", "/register", "/login", "/play"]
+    const authPaths = ["/dashboard", "/account", "/account/edit", "/lobbies", "/lobbies/create", "/lobbies/edit"]
 
     const tokenLoginHandler = async (token, route) => {
         try {
@@ -31,6 +31,7 @@ const Container = () => {
         }
         catch (error) {
             console.error("Login failed:", error); // Handle login error
+            Cookies.remove("token");
         }
         finally {
             navigate(route);
@@ -115,18 +116,22 @@ const Container = () => {
 
     const pathValidator = (path) => {
         if (!paths.concat(authPaths).includes(path)) {
-            const pathSegments = path.split('/');
-            const play = pathSegments[1];
-            const id = pathSegments[2];
-            const isValidId = (id) => {
-                const objectIdPattern = /^[0-9a-fA-F]{24}$/;
-                return objectIdPattern.test(id);
-            }
-            if (!(play === "play" && isValidId(id))) {
+            if (!lobbyPathValidator(path)) {
                 return false;
             }
         }
         return true;
+    }
+
+    const lobbyPathValidator = (path) => {
+        const pathSegments = path.split('/');
+        const play = pathSegments[1];
+        const id = pathSegments[2];
+        const isValidId = (id) => {
+            const objectIdPattern = /^[0-9a-fA-F]{24}$/;
+            return objectIdPattern.test(id);
+        }
+        return (play === "play" && isValidId(id))
     }
 
     return (

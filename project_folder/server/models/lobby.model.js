@@ -1,7 +1,5 @@
 import {model, Schema} from 'mongoose';
 
-import User from "./user.model.js";
-
 const LobbySchema = new Schema(
     {
         name: {
@@ -10,7 +8,8 @@ const LobbySchema = new Schema(
         },
         description: {
             type: String,
-            required: false
+            required: false,
+            default: ""
         },
         maxPlayers: {
             type: Number,
@@ -29,8 +28,7 @@ const LobbySchema = new Schema(
         },
         gameState: {
             type: Object,
-            required: true,
-            default: {}
+            required: true
         }
     },
     { timestamps: true }

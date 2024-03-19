@@ -20,7 +20,6 @@ const Header = (props) => {
                         </span>
                     </h1>
                 </Link>
-                <button onClick={logoutHandler} className={styles.redButtonMarginLeft}>LOGOUT</button>
                 {token ? (
                     <div className={styles.flexBox}>
                         {user && user.username && (
