@@ -1,6 +1,6 @@
 import { Link,useLocation } from "react-router-dom";
 
-import pokerTime from "../assets/pokerLogo.png"
+import cardClub from "../assets/cardClub.png"
 import styles from "../css/components/Header.module.css";
 
 const Header = (props) => {
@@ -13,7 +13,7 @@ const Header = (props) => {
         <div className={styles.header}>
             <div className={styles.headerMain}>
                 <Link to={token ? "/dashboard" : "/"} className={styles.flexBox}>
-                    <img src={pokerTime} alt="Poker Time Logo" className={styles.logo} />
+                    <img src={cardClub} alt="Card Club Logo" className={styles.logo} />
                     <h1 className={styles.heading1}>
                         <span className={styles.whiteText}>
                             Card Club
@@ -23,8 +23,10 @@ const Header = (props) => {
                 {token ? (
                     <div className={styles.flexBox}>
                         {user && user.username && (
-                            <h4>
-                                Logged in as {user.username}
+                            <h4 className={styles.heading4}>
+                                <span className={styles.whiteText}>
+                                    Logged in as {user.username}
+                                </span>
                             </h4>
                         )}
                         <Link to="/account" className={styles.yellowButton}>ACCOUNT</Link>

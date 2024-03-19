@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 
 import lobbyService from "../services/LobbyService";
 import homeButton from "../assets/homeButton.png"
-import pokerTime from "../assets/pokerLogo.png"
+import cardClub from "../assets/cardClub.png"
 
 import styles from "../css/components/Poker.module.css";
 
@@ -384,7 +384,7 @@ const Poker = (props) => {
 
     const drawPlayButton = () => {
         const img = new Image();
-        img.src = pokerTime;
+        img.src = cardClub;
         img.onload = function() {
             ctx.drawImage(img, 500, 500, 250, 250);
             ctx.font = '60px Arial';

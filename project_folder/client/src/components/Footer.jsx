@@ -1,10 +1,14 @@
 import { Link } from "react-router-dom";
 
-import linkedInLogo from "../assets/linkedInLogo.png"
-import gitHubLogo from "../assets/gitHubLogo.png"
+import linkedIn from "../assets/linkedIn256.png"
+import gitHub from "../assets/gitHub256.png"
 import styles from "../css/components/Footer.module.css";
 
 const Footer = () => {
+
+    const openLink = (link) => {
+        window.open(link, "_blank");
+    }
 
     return (
         <div className={styles.footer}>
@@ -32,12 +36,12 @@ const Footer = () => {
                             Mitch Barry
                         </span>
                     </h5>
-                    <Link>
-                        <img src={gitHubLogo} alt="GitHub Logo" className={styles.logoIcon} />
-                    </Link>
-                    <Link>
-                        <img src={linkedInLogo} alt="LinkedIn Logo" className={styles.logoIconMarginRight} />
-                    </Link>
+                    <button onClick={() => openLink("https://github.com/mitchbarry")}>
+                        <img src={gitHub} alt="GitHub Logo" className={styles.logoIcon} />
+                    </button>
+                    <button onClick={() => openLink("https://www.linkedin.com/in/mitch-barry/")}>
+                        <img src={linkedIn} alt="LinkedIn Logo" className={styles.logoIconMarginRight} />
+                    </button>
                 </div>
             </div>
         </div>

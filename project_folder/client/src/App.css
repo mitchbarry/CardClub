@@ -4,7 +4,7 @@
     padding: 0;
     border: 0;
     box-sizing: border-box;
-    font-family: sans-serif,monospace;
+    font-family: 'Roboto', 'Helvetica', Arial, sans-serif;
 }
 #app {
     margin: 0 auto;

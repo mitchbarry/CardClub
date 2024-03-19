@@ -136,9 +136,11 @@ const Container = () => {
 
     return (
         <div className={styles.container}>
+            <div class={styles.overlayLeft}></div>
             <Header token={token} user={user} logoutHandler={logoutHandler} />
             <MainContent user={user} token={token} responseLoginHandler={responseLoginHandler} errors ={errors} />
             <Footer />
+            <div class={styles.overlayRight}></div>
         </div>
     )
 }
