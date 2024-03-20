@@ -3,31 +3,48 @@
     display: flex;
 }
 .mainItem {
-    width: fit-content;
+    width: 1280px;
     text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: flex-end;
+    background-color: #CCCCCC;
+    border: solid 2px #3F3F3F;
+    padding: 20px;
+}
+.lobbyDiv {
+    border: solid 2px #3F3F3F;
+    width: 100%;
+    height: fit-content;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    margin-bottom: 20px;
 }
 /* ------------------------------------------------------------------------------------ button items > */
-.blueButton, .greenButton, .purpleButton, .goldButton, .blueButtonMarginLeft, .blueButtonMarginBottom {
+.blueButton, .greenButton, .redButton, .blueButtonMarginLeft, .blueButtonMarginBottom {
     color: whitesmoke;
-    border-radius: 5px;
     display: flex;
     align-items: center;
     width: fit-content;
     cursor: pointer;
     text-decoration: none;
 }
-.blueButton, .greenButton, .purpleButton, .goldButton, .blueButtonMarginLeft, .blueButtonMarginBottom {
+.blueButton, .greenButton, .redButton, .blueButtonMarginLeft, .blueButtonMarginBottom {
     font-weight: bold;
     font-size: 130%;
-    height: 40px;
+    height: 35px;
     padding: 10px 20px;
 }
 .blueButton, .blueButtonMarginLeft, .blueButtonMarginBottom {
     background-color: #178FEB;
+}
+.greenButton {
+    background-color: #1D602F;
+}
+.redButton {
+    background-color: #9F2628;
 }
 /* ------------------------------------------------------------------------------------ simple styling items > */
 .heading2 {

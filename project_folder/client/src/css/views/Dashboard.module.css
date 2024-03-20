@@ -1,11 +1,13 @@
 /* ------------------------------------------------------------------------------------ div items > */
 .mainItem {
-    width: fit-content;
+    width: 1280px;
     text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    align-items: flex-end;
+    background-color: #CCCCCC;
+    border: solid 2px #3F3F3F;
+    padding: 20px;
 }
 /* ------------------------------------------------------------------------------------ button items > */
 .blueButton, .greenButton, .purpleButton, .goldButton, .blueButtonMarginLeft, .blueButtonMarginBottom {

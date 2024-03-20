@@ -7,7 +7,7 @@ const Dashboard = (props) => {
     const {user} = props
 
     return (
-        <div>
+        <div className={styles.mainItem}> 
             <h1>
                 Dashboard
             </h1>

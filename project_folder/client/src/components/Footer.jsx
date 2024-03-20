@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 import linkedIn from "../assets/linkedIn256.png"
-import gitHub from "../assets/gitHub256.png"
+import gitHub from "../assets/gitHub256White.png"
 import styles from "../css/components/Footer.module.css";
 
 const Footer = () => {
@@ -36,10 +36,10 @@ const Footer = () => {
                             Mitch Barry
                         </span>
                     </h5>
-                    <button onClick={() => openLink("https://github.com/mitchbarry")}>
+                    <button className={styles.logoIcon} onClick={() => openLink("https://github.com/mitchbarry")}>
                         <img src={gitHub} alt="GitHub Logo" className={styles.logoIcon} />
                     </button>
-                    <button onClick={() => openLink("https://www.linkedin.com/in/mitch-barry/")}>
+                    <button className={styles.logoIcon} onClick={() => openLink("https://www.linkedin.com/in/mitch-barry/")}>
                         <img src={linkedIn} alt="LinkedIn Logo" className={styles.logoIconMarginRight} />
                     </button>
                 </div>

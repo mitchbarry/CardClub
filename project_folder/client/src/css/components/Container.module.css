@@ -7,23 +7,3 @@
     background-size: cover;
     background-position: center;
 }
-/* CSS for the overlay gradients */
-.overlayLeft {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 20vw; /* Adjust as needed */
-    height: 100vh;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
-    pointer-events: none;
-
-}
-.overlayRight {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 20vw; /* Adjust as needed */
-    height: 100vh;
-    background: linear-gradient(to left, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
-    pointer-events: none;
-}

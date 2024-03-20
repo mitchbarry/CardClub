@@ -9,12 +9,12 @@ const Home = () => {
     return (
         <div className={styles.flexBox}>
             <Sidebar />
-            <div>
+            <div className={styles.mainItem}>
                 <h1>
                     Welcome to Card Club!
                 </h1>
                 <h2>
-                    Our website is amazing! We have so many users! Shill shill shill!
+                    Our website is amazing! We have so many users!
                 </h2>
                 <Link to="/play" className={styles.blueButton}>Play Now</Link>
                 <Link to="/lobbies" className={styles.blueButton}>Browse Lobbies</Link>

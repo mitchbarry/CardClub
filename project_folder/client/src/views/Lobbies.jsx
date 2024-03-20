@@ -56,39 +56,39 @@ const Lobbies = (props) => {
         console.error(error);
     }
 
-
-
     return (
         <div className={styles.flexBox}>
             <Sidebar />
-                <div>
-                    {!user.lobbyId && (
-                        <Link to="/lobbies/create" className={styles.blueButton}>+</Link>
-                    )}
-                    {lobbies && lobbies.length === 0 ? (
-                        <h2>No lobbies are here! Make one?</h2>
-                        ) : (
-                            lobbies.map((lobby, index) => (
-                                <div key={index}>
-                                    <h3>{lobby.name}</h3>
-                                    <Link to={`/play/${lobby._id}`}>
-                                        Join
-                                    </Link>
-                                    {lobby.creatorId === user._id && (
-                                        <>
-                                            <Link to={`/lobbies/edit`}>
-                                                Edit
-                                            </Link>
-                                            <button onClick={() => deleteLobby(lobby._id)}>
-                                                Delete
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
-                            ))
-                        )
-                    }
-                </div>
+            <div className={styles.mainItem}>
+                {!user.lobbyId && (
+                    <Link to="/lobbies/create" className={styles.blueButton}>+</Link>
+                )}
+                {lobbies && lobbies.length === 0 ? (
+                    <h2>No lobbies are here! Make one?</h2>
+                    ) : (
+                        lobbies.map((lobby, index) => (
+                            <div key={index} className={styles.lobbyDiv}>
+                                <h3>{lobby.name}</h3>
+                                {lobby.description && <h3>{lobby.description}</h3>}
+                                <h3>Max Players: {lobby.maxPlayers}</h3>
+                                <Link to={`/play/${lobby._id}`} className={styles.greenButton}>
+                                    Join
+                                </Link>
+                                {lobby.creatorId === user._id && (
+                                    <>
+                                        <Link to={`/lobbies/edit`} className={styles.blueButton}>
+                                            Edit
+                                        </Link>
+                                        <button onClick={() => deleteLobby(lobby._id)} className={styles.redButton}>
+                                            Delete
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        ))
+                    )
+                }
+            </div>
             <Sidebar />
         </div>
     )
