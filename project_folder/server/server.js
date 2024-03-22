@@ -108,6 +108,7 @@ io.on("connection", socket => {
 });
 
 const removeUserFromLobby = async (socketInfo) => {
+    // begin to include bits about running more poker updates!
     let lobby;
     try {
         lobby = await Lobby.findById(socketInfo.lobbyId);
