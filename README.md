@@ -1,4 +1,4 @@
-# Poker Project by Mitch Barry
+# Card Club by Mitch Barry
 
 A website where a user can play poker solo versus AI, or together with friends!
 
