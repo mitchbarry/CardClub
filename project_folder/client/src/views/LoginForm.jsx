@@ -17,7 +17,6 @@ const LoginForm = (props) => {
         email: "",
         password: ""
     })
-    const [isValidForm, setIsValidForm] = useState(true);
 
     const inputHandler = (e) => {
         switch(e.target.id) {

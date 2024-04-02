@@ -214,13 +214,13 @@ const LobbyForm = (props) => {
                 )}
                 <form className={styles.flexForm} onSubmit={submitHandler}>
                     <label htmlFor="name" className={styles.whiteLabel}>Name: (optional)</label>
-                    <input className={styles.textfieldMarginBottom} type="text" id="name" name="name" value={name} onChange={(e) => inputHandler(e)}></input>
+                    <input className={styles.textfieldMarginBottom} type="text" id="name" name="name" value={name} onChange={(e) => inputHandler(e)} required></input>
                     <label htmlFor="description" className={styles.whiteLabel}>Description: (optional)</label>
-                    <input className={styles.textfieldMarginBottom} type="text" id="description" name="description" value={description} onChange={(e) => inputHandler(e)}></input>
+                    <input className={styles.textfieldMarginBottom} type="text" id="description" name="description" value={description} onChange={(e) => inputHandler(e)} required></input>
                     <label htmlFor="maxPlayers" className={styles.whiteLabel}>Max Players:</label>
-                    <input className={styles.textfieldMarginBottom} type="number" id="maxPlayers" name="maxPlayers" value={maxPlayers} onChange={(e) => inputHandler(e)}></input>
+                    <input className={styles.textfieldMarginBottom} type="number" id="maxPlayers" name="maxPlayers" value={maxPlayers} onChange={(e) => inputHandler(e)} required></input>
                     <label htmlFor="password" className={styles.whiteLabel}>Password: (optional)</label>
-                    <input className={styles.textfieldMarginBottom} type="password" id="password" name="password" value={password} onChange={(e) => inputHandler(e)}></input>
+                    <input className={styles.textfieldMarginBottom} type="password" id="password" name="password" value={password} onChange={(e) => inputHandler(e)} required></input>
                     <button className={styles.blueButton} type="submit">
                         {user.lobbyId === "" ? "Create" : "Update"}
                     </button>
