@@ -11,7 +11,7 @@ const LoginForm = (props) => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [errors, setErrors] = useState([])
+    const [errors, setErrors] = useState({})
     const [showNotification, setShowNotification] = useState(false)
     const [formErrors, setFormErrors] = useState({
         email: "",
